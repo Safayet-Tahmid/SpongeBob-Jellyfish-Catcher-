@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, HelpCircle, Sparkles, Shield, Zap, Gauge, Keyboard } from 'lucide-react';
+import { X, HelpCircle, Sparkles, Shield, Zap, Gauge, Keyboard, Check } from 'lucide-react';
 import { soundManager } from '../../utils/audio';
 
 interface HowToPlayModalProps {
@@ -8,15 +8,15 @@ interface HowToPlayModalProps {
 
 export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ onClose }) => {
   return (
-    <div className="absolute inset-0 z-50 bg-sky-950/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-      <div className="bg-gradient-to-b from-amber-100 via-amber-200 to-amber-300 border-4 border-amber-800 rounded-3xl p-5 sm:p-7 max-w-lg w-full shadow-[0_12px_0_#78350f,0_25px_30px_rgba(0,0,0,0.6)] flex flex-col my-auto max-h-[92vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-        {/* Header */}
+    <div className="fixed inset-0 z-50 bg-sky-950/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 select-none touch-auto safe-area-pad animate-in fade-in duration-200">
+      <div className="bg-gradient-to-b from-amber-100 via-amber-200 to-amber-300 border-4 border-amber-800 rounded-3xl p-4 sm:p-6 max-w-lg w-full shadow-[0_12px_0_#78350f,0_25px_30px_rgba(0,0,0,0.6)] flex flex-col max-h-[85dvh] overflow-hidden">
+        {/* Sticky Header */}
         <div className="flex items-center justify-between pb-3 border-b-2 border-amber-400 shrink-0">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-xl bg-amber-400 border-2 border-amber-600 text-amber-950">
               <HelpCircle className="w-5 h-5 stroke-[2.5]" />
             </div>
-            <h2 className="font-cartoon text-2xl sm:text-3xl font-black text-amber-950 drop-shadow-[0_2px_0_#fef08a] uppercase tracking-wide">
+            <h2 className="font-cartoon text-xl sm:text-2xl md:text-3xl font-black text-amber-950 drop-shadow-[0_2px_0_#fef08a] uppercase tracking-wide">
               HOW TO PLAY
             </h2>
           </div>
@@ -33,10 +33,10 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ onClose }) => {
         </div>
 
         {/* Scrollable Guide */}
-        <div className="flex flex-col gap-4 py-4 text-xs sm:text-sm">
+        <div className="flex-1 overflow-y-auto overscroll-contain touch-auto flex flex-col gap-4 py-3 pr-1 text-xs sm:text-sm">
           {/* Controls Section */}
           <div>
-            <h3 className="font-cartoon text-base text-amber-950 font-bold mb-2 flex items-center gap-2 uppercase tracking-wide">
+            <h3 className="font-cartoon text-sm sm:text-base text-amber-950 font-bold mb-2 flex items-center gap-2 uppercase tracking-wide">
               <Keyboard className="w-4 h-4 text-amber-800" />
               Game Controls
             </h3>
@@ -47,7 +47,7 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ onClose }) => {
                   <span className="bg-amber-200 px-1 py-0.5 rounded font-bold text-amber-950 border border-amber-400">WASD</span> or{' '}
                   <span className="bg-amber-200 px-1 py-0.5 rounded font-bold text-amber-950 border border-amber-400">Arrow Keys</span> to swim.
                   <br />
-                  <span className="bg-amber-200 px-1 py-0.5 rounded font-bold text-amber-950 border border-amber-400">Spacebar</span> or mouse click to swing net!
+                  <span className="bg-amber-200 px-1 py-0.5 rounded font-bold text-amber-950 border border-amber-400">Spacebar</span> or click to swing net!
                 </p>
               </div>
               <div className="bg-amber-50/90 p-3 rounded-2xl border-2 border-amber-500 shadow-sm">
@@ -65,7 +65,7 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ onClose }) => {
 
           {/* Jellyfish Varieties */}
           <div>
-            <h3 className="font-cartoon text-base text-amber-950 font-bold mb-2 uppercase tracking-wide">
+            <h3 className="font-cartoon text-sm sm:text-base text-amber-950 font-bold mb-2 uppercase tracking-wide">
               Jellyfish Varieties
             </h3>
             <div className="grid grid-cols-1 gap-2">
@@ -138,7 +138,7 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ onClose }) => {
 
           {/* Power-Ups */}
           <div>
-            <h3 className="font-cartoon text-base text-amber-950 font-bold mb-2 uppercase tracking-wide">
+            <h3 className="font-cartoon text-sm sm:text-base text-amber-950 font-bold mb-2 uppercase tracking-wide">
               Collectible Power-Ups
             </h3>
             <div className="grid grid-cols-2 gap-2 text-xs">
@@ -146,7 +146,7 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ onClose }) => {
                 <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                 <div>
                   <span className="font-cartoon font-bold text-amber-950 block">Super Net (8s)</span>
-                  <span className="text-[11px] text-amber-800">Giant net with huge catch radius.</span>
+                  <span className="text-[11px] text-amber-800">Giant catch radius.</span>
                 </div>
               </div>
 
@@ -154,7 +154,7 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ onClose }) => {
                 <Zap className="w-4 h-4 text-yellow-600 shrink-0 mt-0.5" />
                 <div>
                   <span className="font-cartoon font-bold text-amber-950 block">Speed Boost (7s)</span>
-                  <span className="text-[11px] text-amber-800">Sprint at rapid swimming speed.</span>
+                  <span className="text-[11px] text-amber-800">Fast swimming speed.</span>
                 </div>
               </div>
 
@@ -162,7 +162,7 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ onClose }) => {
                 <Shield className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
                 <div>
                   <span className="font-cartoon font-bold text-amber-950 block">Bubble Shield (6s)</span>
-                  <span className="text-[11px] text-amber-800">Deflects electric shocks safely.</span>
+                  <span className="text-[11px] text-amber-800">Deflects shocks safely.</span>
                 </div>
               </div>
 
@@ -170,23 +170,24 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ onClose }) => {
                 <Gauge className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
                   <span className="font-cartoon font-bold text-amber-950 block">Double Points (10s)</span>
-                  <span className="text-[11px] text-amber-800">2X multiplier on caught jellyfish!</span>
+                  <span className="text-[11px] text-amber-800">2X multiplier!</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Footer */}
+        {/* Sticky Footer */}
         <div className="pt-3 border-t-2 border-amber-400 flex justify-end shrink-0">
           <button
             onClick={() => {
               soundManager.playButtonClick();
               onClose();
             }}
-            className="py-2.5 px-6 rounded-2xl bg-gradient-to-b from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-amber-950 font-cartoon font-extrabold text-base border-3 border-amber-700 shadow-[0_4px_0_#92400e] active:translate-y-0.5 active:shadow-[0_1px_0_#92400e] transition-all cursor-pointer"
+            className="w-full sm:w-auto py-2.5 px-7 rounded-2xl bg-gradient-to-b from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-amber-950 font-cartoon font-extrabold text-base border-3 border-amber-700 shadow-[0_4px_0_#92400e] active:translate-y-0.5 active:shadow-[0_1px_0_#92400e] transition-all cursor-pointer flex items-center justify-center gap-1.5"
           >
-            GOT IT!
+            <Check className="w-4 h-4 stroke-[3]" />
+            <span>GOT IT!</span>
           </button>
         </div>
       </div>

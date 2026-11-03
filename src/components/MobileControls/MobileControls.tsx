@@ -25,9 +25,9 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
   const catchBtnScale = layout?.catchBtnScale || 1.25;
   const opacity = layout?.opacity ?? 0.9;
 
-  const baseRadius = 64 * joystickScale;
-  const knobRadius = 28 * joystickScale;
-  const catchBtnSize = 88 * catchBtnScale;
+  const baseRadius = 60 * joystickScale;
+  const knobRadius = 26 * joystickScale;
+  const catchBtnSize = 84 * catchBtnScale;
 
   const handlePointerDown = (e: React.PointerEvent) => {
     e.preventDefault();
@@ -86,9 +86,15 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
     };
   }, [onMove]);
 
+  // Safe area aware base offsets: ensure at least 24px + safe area from any edge
+  const joyX = layout?.joystickX ?? 20;
+  const joyY = layout?.joystickY ?? 20;
+  const catchX = layout?.catchBtnX ?? 20;
+  const catchY = layout?.catchBtnY ?? 20;
+
   return (
     <div className="absolute inset-0 pointer-events-none z-30 select-none overflow-hidden">
-      {/* Virtual Joystick (Positioned via Custom Layout or Default) */}
+      {/* Virtual Joystick (Positioned with safe area + layout offset) */}
       <div
         ref={joystickBaseRef}
         onPointerDown={handlePointerDown}
@@ -96,13 +102,13 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
         style={{
-          left: `${layout?.joystickX ?? 20}px`,
-          bottom: `${layout?.joystickY ?? 20}px`,
+          left: `calc(max(1.25rem, env(safe-area-inset-left, 1.25rem) + 0.5rem) + ${joyX}px)`,
+          bottom: `calc(max(1.25rem, env(safe-area-inset-bottom, 1.25rem) + 0.5rem) + ${joyY}px)`,
           width: baseRadius * 2,
           height: baseRadius * 2,
           opacity,
         }}
-        className={`pointer-events-auto absolute rounded-full bg-slate-950/75 border-4 border-amber-400 shadow-2xl flex items-center justify-center touch-none transition-transform ${
+        className={`pointer-events-auto absolute rounded-full bg-slate-950/80 border-4 border-amber-400 shadow-[0_6px_20px_rgba(0,0,0,0.6)] flex items-center justify-center touch-none transition-transform ${
           isDragging ? 'scale-105 border-amber-300 ring-4 ring-amber-400/40' : ''
         }`}
       >
@@ -123,11 +129,11 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
             isDragging ? 'scale-110 shadow-sky-500/60' : ''
           }`}
         >
-          <div className="w-4 h-4 rounded-full bg-white/40" />
+          <div className="w-3.5 h-3.5 rounded-full bg-white/40" />
         </div>
       </div>
 
-      {/* Catch Action Button (Positioned via Custom Layout or Default) */}
+      {/* Catch Action Button (Positioned with safe area + layout offset) */}
       <button
         onPointerDown={(e) => {
           e.preventDefault();
@@ -140,21 +146,21 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
         }}
         onPointerCancel={() => setIsCatchPressed(false)}
         style={{
-          right: `${layout?.catchBtnX ?? 20}px`,
-          bottom: `${layout?.catchBtnY ?? 20}px`,
+          right: `calc(max(1.25rem, env(safe-area-inset-right, 1.25rem) + 0.5rem) + ${catchX}px)`,
+          bottom: `calc(max(1.25rem, env(safe-area-inset-bottom, 1.25rem) + 0.5rem) + ${catchY}px)`,
           width: catchBtnSize,
           height: catchBtnSize,
           opacity,
         }}
         aria-label="Catch Jellyfish"
-        className={`pointer-events-auto absolute rounded-full bg-gradient-to-b from-yellow-300 via-amber-400 to-amber-500 border-4 border-white shadow-2xl text-slate-950 flex flex-col items-center justify-center font-cartoon font-black transition-all touch-none select-none active:scale-90 ${
+        className={`pointer-events-auto absolute rounded-full bg-gradient-to-b from-yellow-300 via-amber-400 to-amber-500 border-4 border-white shadow-[0_6px_20px_rgba(0,0,0,0.6)] text-slate-950 flex flex-col items-center justify-center font-cartoon font-black transition-all touch-none select-none active:scale-90 ${
           isCatchPressed
             ? 'translate-y-1 brightness-90 shadow-inner'
             : 'border-b-6 border-amber-600 hover:scale-105 shadow-amber-500/50'
         }`}
       >
         <span className="text-2xl sm:text-3xl leading-none drop-shadow">🕸️</span>
-        <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-950 drop-shadow-sm -mt-0.5">
+        <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-slate-950 drop-shadow-sm -mt-0.5">
           Catch!
         </span>
       </button>

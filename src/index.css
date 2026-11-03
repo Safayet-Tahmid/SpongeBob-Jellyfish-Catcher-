@@ -29,6 +29,32 @@
   }
 }
 
+/* Safe Area Inset Helpers */
+.safe-area-top {
+  padding-top: max(0.75rem, env(safe-area-inset-top, 0.75rem));
+}
+.safe-area-bottom {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0.75rem));
+}
+.safe-area-left {
+  padding-left: max(0.75rem, env(safe-area-inset-left, 0.75rem));
+}
+.safe-area-right {
+  padding-right: max(0.75rem, env(safe-area-inset-right, 0.75rem));
+}
+.safe-area-pad {
+  padding-top: max(0.75rem, env(safe-area-inset-top, 0.75rem));
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0.75rem));
+  padding-left: max(0.75rem, env(safe-area-inset-left, 0.75rem));
+  padding-right: max(0.75rem, env(safe-area-inset-right, 0.75rem));
+}
+
+/* Allow touch scrolling in modal containers despite body touch-action: none */
+.touch-auto {
+  touch-action: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
 .font-cartoon {
   font-family: var(--font-cartoon);
 }

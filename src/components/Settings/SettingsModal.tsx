@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Volume2, VolumeX, Sliders, Smartphone, Eye, SlidersHorizontal } from 'lucide-react';
+import { X, Volume2, VolumeX, Sliders, Smartphone, Eye, SlidersHorizontal, Check } from 'lucide-react';
 import { GameSettings } from '../../types/game';
 import { soundManager } from '../../utils/audio';
 
@@ -17,14 +17,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
 }) => {
   return (
-    <div className="absolute inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 select-none">
-      <div className="bg-amber-50 border-4 border-amber-800 rounded-3xl p-5 sm:p-7 max-w-md w-full shadow-[0_8px_0_#78350f] flex flex-col animate-in fade-in zoom-in-95 duration-200">
-        {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b-2 border-amber-800/20">
+    <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 select-none touch-auto safe-area-pad animate-in fade-in duration-200">
+      <div className="bg-amber-50 border-4 border-amber-800 rounded-3xl p-4 sm:p-6 max-w-md w-full shadow-[0_8px_0_#78350f,0_20px_25px_rgba(0,0,0,0.5)] flex flex-col max-h-[85dvh] overflow-hidden">
+        {/* Sticky Header */}
+        <div className="flex items-center justify-between pb-3 border-b-2 border-amber-800/20 shrink-0">
           <div className="flex items-center gap-2">
-            <Sliders className="w-5 h-5 text-amber-800" />
-            <h2 className="font-cartoon text-2xl font-black text-amber-950">
-              SETTINGS
+            <div className="p-1.5 rounded-xl bg-amber-400 border-2 border-amber-800 text-amber-950">
+              <Sliders className="w-5 h-5 stroke-[2.5]" />
+            </div>
+            <h2 className="font-cartoon text-xl sm:text-2xl font-black text-amber-950">
+              GAME SETTINGS
             </h2>
           </div>
           <button
@@ -33,28 +35,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               onClose();
             }}
             aria-label="Close settings"
-            className="p-1.5 rounded-full hover:bg-amber-200/60 text-amber-900 transition-colors"
+            className="p-1.5 rounded-full hover:bg-amber-200/60 text-amber-900 transition-colors cursor-pointer active:scale-95"
           >
             <X className="w-5 h-5 stroke-[2.5]" />
           </button>
         </div>
 
-        {/* Content list */}
-        <div className="flex flex-col gap-3.5 py-4 text-xs sm:text-sm">
+        {/* Scrollable Content list */}
+        <div className="flex-1 overflow-y-auto overscroll-contain touch-auto flex flex-col gap-3 py-3 pr-1 text-xs sm:text-sm">
           {/* Dedicated Control Editor Banner */}
           <button
             onClick={() => {
               soundManager.playButtonClick();
               onOpenControlEditor();
             }}
-            className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-300 hover:to-sky-400 border-3 border-sky-800 text-sky-950 font-cartoon font-black text-sm sm:text-base shadow-[0_4px_0_#075985] active:translate-y-0.5 active:shadow-[0_1px_0_#075985] flex items-center justify-between transition-all"
+            className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-300 hover:to-sky-400 border-3 border-sky-800 text-sky-950 font-cartoon font-black text-sm sm:text-base shadow-[0_4px_0_#075985] active:translate-y-0.5 active:shadow-[0_1px_0_#075985] flex items-center justify-between transition-all cursor-pointer"
           >
             <span className="flex items-center gap-2">
               <SlidersHorizontal className="w-5 h-5" />
               <span>CUSTOMIZE CONTROLS</span>
             </span>
             <span className="text-[11px] bg-sky-100 text-sky-950 px-2 py-0.5 rounded-full border border-sky-800 font-bold">
-              Position & Size
+              Move & Resize
             </span>
           </button>
 
@@ -70,7 +72,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   soundManager.playButtonClick();
                   onUpdateSettings({ musicEnabled: !settings.musicEnabled });
                 }}
-                className={`w-12 h-6 rounded-full border-2 border-amber-800 transition-colors relative p-0.5 ${
+                className={`w-12 h-6 rounded-full border-2 border-amber-800 transition-colors relative p-0.5 cursor-pointer ${
                   settings.musicEnabled ? 'bg-amber-400' : 'bg-slate-300'
                 }`}
               >
@@ -114,7 +116,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   soundManager.playButtonClick();
                   onUpdateSettings({ sfxEnabled: !settings.sfxEnabled });
                 }}
-                className={`w-12 h-6 rounded-full border-2 border-amber-800 transition-colors relative p-0.5 ${
+                className={`w-12 h-6 rounded-full border-2 border-amber-800 transition-colors relative p-0.5 cursor-pointer ${
                   settings.sfxEnabled ? 'bg-amber-400' : 'bg-slate-300'
                 }`}
               >
@@ -162,7 +164,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 soundManager.playButtonClick();
                 onUpdateSettings({ reducedMotion: !settings.reducedMotion });
               }}
-              className={`w-12 h-6 rounded-full border-2 border-amber-800 transition-colors relative p-0.5 ${
+              className={`w-12 h-6 rounded-full border-2 border-amber-800 transition-colors relative p-0.5 cursor-pointer ${
                 settings.reducedMotion ? 'bg-amber-400' : 'bg-slate-300'
               }`}
             >
@@ -175,16 +177,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="pt-2 border-t-2 border-amber-800/20 flex justify-end">
+        {/* Sticky Footer with prominent "Done" button */}
+        <div className="pt-3 border-t-2 border-amber-800/20 flex justify-end shrink-0">
           <button
             onClick={() => {
               soundManager.playButtonClick();
               onClose();
             }}
-            className="py-2.5 px-6 rounded-xl bg-amber-400 hover:bg-amber-300 border-2 border-amber-800 text-amber-950 font-cartoon font-black text-sm shadow-[0_3px_0_#78350f] active:translate-y-0.5 active:shadow-[0_1px_0_#78350f] transition-all"
+            className="w-full sm:w-auto py-2.5 px-7 rounded-xl bg-gradient-to-b from-yellow-300 via-amber-400 to-amber-500 hover:from-yellow-200 hover:to-amber-400 border-2 border-amber-800 text-amber-950 font-cartoon font-black text-sm shadow-[0_3px_0_#78350f] active:translate-y-0.5 active:shadow-[0_1px_0_#78350f] transition-all cursor-pointer flex items-center justify-center gap-1.5"
           >
-            Done
+            <Check className="w-4 h-4 stroke-[3]" />
+            <span>Done</span>
           </button>
         </div>
       </div>

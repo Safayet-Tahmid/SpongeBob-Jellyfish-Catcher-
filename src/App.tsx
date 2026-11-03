@@ -126,6 +126,11 @@ export default function App() {
 
     const onResize = () => {
       engine.handleResize();
+      const hasTouch =
+        'ontouchstart' in window ||
+        navigator.maxTouchPoints > 0 ||
+        window.innerWidth < 1024;
+      setIsTouchDevice(hasTouch);
     };
 
     window.addEventListener('resize', onResize);
@@ -238,7 +243,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-sky-950 text-slate-100 select-none">
+    <div className="fixed inset-0 w-full h-full min-h-[100dvh] overflow-hidden bg-sky-950 text-slate-100 select-none touch-none">
       {/* HTML5 Game Canvas */}
       <canvas
         ref={canvasRef}

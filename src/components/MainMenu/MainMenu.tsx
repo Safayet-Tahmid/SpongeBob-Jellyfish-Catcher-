@@ -78,7 +78,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
           <div className="grid grid-cols-3 gap-1.5">
             <button
               onClick={() => {
-                soundManager.playButtonClick();
+                soundManager.playButtonClick('mode');
                 onSelectMode('CLASSIC');
               }}
               className={`flex flex-col items-center justify-center py-2 px-1.5 rounded-xl transition-all cursor-pointer ${
@@ -96,7 +96,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
 
             <button
               onClick={() => {
-                soundManager.playButtonClick();
+                soundManager.playButtonClick('mode');
                 onSelectMode('TIME_ATTACK');
               }}
               className={`flex flex-col items-center justify-center py-2 px-1.5 rounded-xl transition-all cursor-pointer ${
@@ -114,7 +114,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
 
             <button
               onClick={() => {
-                soundManager.playButtonClick();
+                soundManager.playButtonClick('mode');
                 onSelectMode('RELAX');
               }}
               className={`flex flex-col items-center justify-center py-2 px-1.5 rounded-xl transition-all cursor-pointer ${
@@ -136,7 +136,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
         <div className="w-full flex flex-col gap-2.5">
           <button
             onClick={() => {
-              soundManager.playButtonClick();
+              soundManager.playButtonClick('save');
               onPlay();
             }}
             className="w-full py-3.5 sm:py-4 px-6 rounded-2xl bg-gradient-to-b from-yellow-300 via-amber-400 to-amber-500 hover:from-yellow-200 hover:to-amber-400 border-4 border-white text-slate-950 font-cartoon font-black text-2xl sm:text-3xl shadow-[0_5px_0_#78350f] active:translate-y-1 active:shadow-[0_1px_0_#78350f] transition-all flex items-center justify-center gap-2 cursor-pointer"

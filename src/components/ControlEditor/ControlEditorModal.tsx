@@ -81,7 +81,7 @@ export const ControlEditorModal: React.FC<ControlEditorModalProps> = ({
   };
 
   const applyPreset = (preset: 'DEFAULT' | 'XLARGE' | 'LEFTHANDED') => {
-    soundManager.playButtonClick();
+    soundManager.playButtonClick('mode');
     if (preset === 'DEFAULT') {
       setCurrentLayout({ ...defaultControlLayout });
     } else if (preset === 'XLARGE') {
@@ -104,7 +104,7 @@ export const ControlEditorModal: React.FC<ControlEditorModalProps> = ({
   };
 
   const handleSave = () => {
-    soundManager.playButtonClick();
+    soundManager.playButtonClick('save');
     onSave(currentLayout);
     setShowToast(true);
     setTimeout(() => {
@@ -113,7 +113,7 @@ export const ControlEditorModal: React.FC<ControlEditorModalProps> = ({
   };
 
   const handleConfirmReset = () => {
-    soundManager.playButtonClick();
+    soundManager.playButtonClick('reset');
     setCurrentLayout({ ...defaultControlLayout });
     setShowResetConfirm(false);
   };

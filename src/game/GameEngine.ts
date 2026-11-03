@@ -206,11 +206,12 @@ export class GameEngine {
 
   public triggerNetCatch() {
     if (this.state !== 'PLAYING') return;
-    this.totalSwings++;
-    soundManager.playNetSwing();
 
     const swung = this.player.swingNet();
     if (!swung) return;
+
+    this.totalSwings++;
+    soundManager.playNetSwing();
 
     // Check jellyfish catches
     const hitbox = this.player.getNetHitbox();
@@ -230,6 +231,8 @@ export class GameEngine {
 
     if (caughtAny) {
       this.jellyfishList = this.jellyfishList.filter((j) => !j.isCaught);
+    } else {
+      soundManager.playMiss();
     }
   }
 
@@ -349,6 +352,12 @@ export class GameEngine {
     const levelConfig = getLevelConfig(this.currentLevel);
     this.player.update(dt, this.inputX, this.inputY, { width: w, height: h });
 
+    // Underwater swimming motion audio (rate-limited subtle bubbles & aquatic swishing)
+    const playerSpeed = Math.hypot(this.player.vx, this.player.vy);
+    if (playerSpeed > 30 && this.player.shockTimer <= 0) {
+      soundManager.playMovement(Math.min(1.0, playerSpeed / this.player.baseSpeed), dt);
+    }
+
     // Update Background
     this.background.update(dt, { width: w, height: h });
 
@@ -415,7 +424,7 @@ export class GameEngine {
   private handleElectricShock(jelly: Jellyfish) {
     if (this.player.shieldActive) {
       // Bubble shield deflects shock!
-      soundManager.playButtonClick();
+      soundManager.playShieldDeflect();
       this.triggerScreenShake(0.15, 3);
       this.particles.spawnElectricShock(jelly.x, jelly.y);
       this.particles.addFloatingText(this.player.x, this.player.y - 30, 'DEFLECTED!', '#38bdf8', 16);
@@ -423,6 +432,7 @@ export class GameEngine {
     }
 
     soundManager.playElectricShock();
+    soundManager.playLifeLost();
     this.player.triggerShock();
     this.triggerScreenShake(0.35, 9);
     this.particles.spawnElectricShock(this.player.x, this.player.y);
@@ -440,7 +450,7 @@ export class GameEngine {
   }
 
   private collectPowerUp(item: PowerUpItem) {
-    soundManager.playPowerUpCollect();
+    soundManager.playPowerUpCollect(item.type);
     this.activatePowerUp(item.type, item.duration);
     this.particles.spawnCatchBurst(item.x, item.y, '#38bdf8', true);
 
@@ -574,7 +584,6 @@ export class GameEngine {
   private endGame() {
     this.state = 'GAME_OVER';
     this.callbacks.onStateChange('GAME_OVER');
-    soundManager.playGameOver();
 
     const accuracy =
       this.totalSwings > 0
@@ -587,6 +596,12 @@ export class GameEngine {
       this.caughtByType,
       this.currentLevel
     );
+
+    if (isNewHigh) {
+      soundManager.playNewHighScore();
+    } else {
+      soundManager.playGameOver();
+    }
 
     this.callbacks.onGameOver({
       finalScore: this.score,

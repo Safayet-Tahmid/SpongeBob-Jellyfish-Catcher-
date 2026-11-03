@@ -153,7 +153,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
         <div className="w-full flex flex-col gap-2.5">
           <button
             onClick={() => {
-              soundManager.playButtonClick();
+              soundManager.playButtonClick('save');
               onPlayAgain();
             }}
             className="w-full min-h-[46px] py-3 px-5 rounded-2xl bg-gradient-to-b from-lime-400 to-green-500 hover:from-lime-300 hover:to-green-400 text-green-950 font-cartoon font-black text-lg sm:text-xl flex items-center justify-center gap-2 border-3 border-green-700 shadow-[0_4px_0_#15803d,0_8px_15px_rgba(0,0,0,0.2)] active:translate-y-1 active:shadow-[0_1px_0_#15803d] transition-all cursor-pointer"

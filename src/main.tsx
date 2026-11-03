@@ -32,4 +32,9 @@ if (
   };
 }
 
+// Prevent pinch-zoom and gesture zooming on mobile Safari
+document.addEventListener('gesturestart', (e) => e.preventDefault());
+document.addEventListener('gesturechange', (e) => e.preventDefault());
+document.addEventListener('gestureend', (e) => e.preventDefault());
+
 createRoot(document.getElementById('root')!).render(<App />);

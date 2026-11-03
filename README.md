@@ -82,6 +82,29 @@ npm run preview
 
 ---
 
+## 🌐 GitHub Pages Deployment (Fixing 404s)
+
+If you are seeing a 404 error when hosting this repository on GitHub Pages, make sure your GitHub repository settings are configured to use either **GitHub Actions** (recommended) or the **`/docs`** folder:
+
+### Option 1: GitHub Actions (Recommended & Automated)
+1. Go to your repository on GitHub.
+2. Click **Settings** > **Pages** (under "Code and automation" in the left sidebar).
+3. Under **Build and deployment** > **Source**, change the dropdown to **GitHub Actions**.
+4. Push any commit or go to the **Actions** tab and trigger the `Deploy Vite to GitHub Pages` workflow.
+5. GitHub will automatically build and publish your game directly to your GitHub Pages URL!
+
+### Option 2: Deploy from Branch (`main` / `/docs`)
+1. Run `npm run build` locally (this generates both `dist/` and `docs/`).
+2. Commit and push the `docs/` folder to GitHub.
+3. In your repository on GitHub, click **Settings** > **Pages**.
+4. Under **Build and deployment** > **Source**, keep **Deploy from a branch**.
+5. Select branch **`main`** (or `master`) and change the folder from `/(root)` to **`/docs`**.
+6. Click **Save**.
+
+*Note: Root directory `index.html`, `404.html`, and `.nojekyll` are all included out of the box to prevent GitHub Pages routing and Jekyll 404 issues.*
+
+---
+
 ## 📜 Credits & Disclaimer
 
 - **Disclaimer**: *SpongeBob SquarePants* and all related titles, logos, and characters are trademarks of Viacom International Inc. / Nickelodeon. This project is an independent, non-commercial fan tribute created for educational and entertainment purposes.

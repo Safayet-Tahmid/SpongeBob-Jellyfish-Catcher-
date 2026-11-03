@@ -1,7 +1,21 @@
-import { GameSettings, PlayerStats } from '../types/game';
+import { CustomControlLayout, GameSettings, PlayerStats } from '../types/game';
 
 const STATS_KEY = 'spongebob_jellyfish_stats_v1';
 const SETTINGS_KEY = 'spongebob_jellyfish_settings_v1';
+
+export const defaultControlLayout: CustomControlLayout = {
+  joystickSize: 'large',
+  catchBtnSize: 'large',
+  joystickScale: 1.15,
+  catchBtnScale: 1.25,
+  joystickX: 20,
+  joystickY: 20,
+  catchBtnX: 20,
+  catchBtnY: 20,
+  hudScale: 1.0,
+  opacity: 0.9,
+  pauseBtnPos: 'top-right',
+};
 
 export const defaultSettings: GameSettings = {
   musicEnabled: true,
@@ -10,7 +24,8 @@ export const defaultSettings: GameSettings = {
   sfxVolume: 0.8,
   reducedMotion: false,
   sensitivity: 1.0,
-  joystickSize: 'medium',
+  joystickSize: 'large',
+  controlLayout: defaultControlLayout,
 };
 
 export const defaultStats: PlayerStats = {
@@ -31,7 +46,15 @@ export function loadSettings(): GameSettings {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (raw) {
-      return { ...defaultSettings, ...JSON.parse(raw) };
+      const parsed = JSON.parse(raw);
+      return {
+        ...defaultSettings,
+        ...parsed,
+        controlLayout: {
+          ...defaultControlLayout,
+          ...(parsed.controlLayout || {}),
+        },
+      };
     }
   } catch {
     // ignore

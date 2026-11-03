@@ -26,6 +26,7 @@ import { MainMenu } from './components/MainMenu/MainMenu';
 import { PauseMenu } from './components/PauseMenu/PauseMenu';
 import { GameOverModal } from './components/GameOver/GameOverModal';
 import { SettingsModal } from './components/Settings/SettingsModal';
+import { ControlEditorModal } from './components/ControlEditor/ControlEditorModal';
 import { HowToPlayModal } from './components/HowToPlay/HowToPlayModal';
 import { AboutModal } from './components/About/AboutModal';
 import { LoadingScreen } from './components/LoadingScreen/LoadingScreen';
@@ -51,6 +52,7 @@ export default function App() {
 
   // Modals
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isControlEditorOpen, setIsControlEditorOpen] = useState(false);
   const [isHowToPlayOpen, setIsHowToPlayOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
 
@@ -194,6 +196,7 @@ export default function App() {
     const m = mode || selectedMode;
     setSelectedMode(m);
     setGameOverSummary(null);
+    soundManager.playGameplayMusic();
     engineRef.current?.start(m);
   };
 
@@ -206,6 +209,7 @@ export default function App() {
   };
 
   const handleRestartGame = () => {
+    soundManager.playGameplayMusic();
     engineRef.current?.start(selectedMode);
   };
 
@@ -214,7 +218,11 @@ export default function App() {
     setGameState('MAIN_MENU');
     setGameOverSummary(null);
     setStats(loadStats());
-    soundManager.stopBackgroundMusic();
+    soundManager.playMenuMusic();
+  };
+
+  const handleSaveControlLayout = (newLayout: any) => {
+    handleUpdateSettings({ controlLayout: newLayout });
   };
 
   const handleCatchAction = useCallback(() => {
@@ -236,7 +244,12 @@ export default function App() {
 
       {/* 1. Loading Screen */}
       {gameState === 'LOADING' && (
-        <LoadingScreen onLoaded={() => setGameState('MAIN_MENU')} />
+        <LoadingScreen
+          onLoaded={() => {
+            setGameState('MAIN_MENU');
+            soundManager.playMenuMusic();
+          }}
+        />
       )}
 
       {/* 2. Main Menu */}
@@ -249,6 +262,7 @@ export default function App() {
           onOpenHowToPlay={() => setIsHowToPlayOpen(true)}
           onOpenSettings={() => setIsSettingsOpen(true)}
           onOpenAbout={() => setIsAboutOpen(true)}
+          onOpenControlEditor={() => setIsControlEditorOpen(true)}
         />
       )}
 
@@ -264,6 +278,7 @@ export default function App() {
           mode={selectedMode}
           powerUps={activePowerUps}
           soundEnabled={settings.sfxEnabled && settings.musicEnabled}
+          layout={settings.controlLayout}
           onToggleSound={handleToggleSound}
           onPause={handlePauseGame}
         />
@@ -274,7 +289,7 @@ export default function App() {
         <MobileControls
           onMove={handleJoystickMove}
           onCatch={handleCatchAction}
-          size={settings.joystickSize}
+          layout={settings.controlLayout}
           sensitivity={settings.sensitivity}
         />
       )}
@@ -309,16 +324,29 @@ export default function App() {
         <SettingsModal
           settings={settings}
           onUpdateSettings={handleUpdateSettings}
+          onOpenControlEditor={() => {
+            setIsSettingsOpen(false);
+            setIsControlEditorOpen(true);
+          }}
           onClose={() => setIsSettingsOpen(false)}
         />
       )}
 
-      {/* 8. How To Play Modal */}
+      {/* 8. Control Layout Editor */}
+      {isControlEditorOpen && (
+        <ControlEditorModal
+          layout={settings.controlLayout}
+          onSave={handleSaveControlLayout}
+          onClose={() => setIsControlEditorOpen(false)}
+        />
+      )}
+
+      {/* 9. How To Play Modal */}
       {isHowToPlayOpen && (
         <HowToPlayModal onClose={() => setIsHowToPlayOpen(false)} />
       )}
 
-      {/* 9. About Modal */}
+      {/* 10. About Modal */}
       {isAboutOpen && <AboutModal onClose={() => setIsAboutOpen(false)} />}
     </div>
   );

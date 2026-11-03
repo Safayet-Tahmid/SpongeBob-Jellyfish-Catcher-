@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SpongeBob: Jellyfish Catcher</title>
+    <script>
+      // Single Page Application & GitHub Pages 404 handler
+      // Seamlessly redirects back to the game if a deep route or direct URL is accessed
+      var path = window.location.pathname;
+      if (path.includes('/docs/')) {
+        window.location.replace(path.substring(0, path.indexOf('/docs/') + 6) + window.location.search + window.location.hash);
+      } else {
+        var segments = path.split('/').filter(Boolean);
+        var repo = segments.length > 0 ? '/' + segments[0] + '/' : '/';
+        // If docs folder exists in branch, prefer /docs/ else repo root
+        window.location.replace(repo + window.location.search + window.location.hash);
+      }
+    </script>
+  </head>
+  <body style="background: #082f49; color: #f8fafc; font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center;">
+    <div>
+      <h1 style="font-size: 1.8rem; margin-bottom: 0.5rem;">🧽 SpongeBob: Jellyfish Catcher</h1>
+      <p style="color: #7dd3fc; margin: 0;">Heading down to Jellyfish Fields...</p>
+    </div>
+  </body>
+</html>

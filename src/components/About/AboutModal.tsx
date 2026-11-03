@@ -8,13 +8,15 @@ interface AboutModalProps {
 
 export const AboutModal: React.FC<AboutModalProps> = ({ onClose }) => {
   return (
-    <div className="absolute inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-white/15 rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-200">
+    <div className="absolute inset-0 z-50 bg-sky-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-gradient-to-b from-amber-100 via-amber-200 to-amber-300 border-4 border-amber-800 rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-[0_12px_0_#78350f,0_25px_30px_rgba(0,0,0,0.6)] flex flex-col animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-white/10">
+        <div className="flex items-center justify-between pb-3 border-b-2 border-amber-400">
           <div className="flex items-center gap-2">
-            <Info className="w-5 h-5 text-amber-400" />
-            <h2 className="font-cartoon text-2xl font-bold text-amber-300">
+            <div className="p-1.5 rounded-xl bg-amber-400 border-2 border-amber-600 text-amber-950">
+              <Info className="w-5 h-5 stroke-[2.5]" />
+            </div>
+            <h2 className="font-cartoon text-2xl font-black text-amber-950 drop-shadow-[0_2px_0_#fef08a] uppercase tracking-wide">
               ABOUT THE GAME
             </h2>
           </div>
@@ -24,50 +26,50 @@ export const AboutModal: React.FC<AboutModalProps> = ({ onClose }) => {
               onClose();
             }}
             aria-label="Close about modal"
-            className="p-1.5 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+            className="w-9 h-9 rounded-full bg-amber-300 hover:bg-amber-400 text-amber-950 border-2 border-amber-700 shadow-[0_2px_0_#78350f] flex items-center justify-center transition-all cursor-pointer active:translate-y-0.5"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 stroke-[2.5]" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex flex-col gap-3.5 py-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
-          <p>
-            <strong className="text-white">SpongeBob: Jellyfish Catcher</strong> is a high-polish, cross-platform underwater arcade game crafted to capture the warmth, humor, and nostalgia of Stephen Hillenburg’s legendary universe.
+        <div className="flex flex-col gap-3 py-4 text-xs sm:text-sm text-amber-950 leading-relaxed">
+          <p className="font-medium">
+            <strong className="font-cartoon text-amber-900 font-black">SpongeBob: Jellyfish Catcher</strong> is an authentic 2000s cartoon arcade tribute set in Bikini Bottom’s Jellyfish Fields, crafted with hand-painted nautical colors, expressive character animation, and nostalgic sounds.
           </p>
 
-          <div className="bg-slate-800/50 p-3.5 rounded-2xl border border-white/5 flex flex-col gap-1.5 text-xs">
-            <span className="font-bold text-sky-300 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-sky-400" />
-              Fan-Made Disclaimer
+          <div className="bg-amber-50/90 p-3.5 rounded-2xl border-2 border-amber-400 shadow-sm flex flex-col gap-1.5 text-xs">
+            <span className="font-cartoon font-bold text-amber-950 flex items-center gap-1.5 uppercase tracking-wide">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
+              Fan Tribute Disclaimer
             </span>
-            <p className="text-slate-400 text-[11px] leading-normal">
-              This is a non-commercial, fan-made interactive tribute created with love. SpongeBob SquarePants, characters, music, and recognizable names are trademarks and copyrights of Viacom International Inc. / Nickelodeon.
+            <p className="text-amber-800 text-[11px] leading-normal font-medium">
+              This is a non-commercial fan tribute created for educational and entertainment purposes. SpongeBob SquarePants, characters, music, and related marks are trademarks of Viacom International Inc. / Nickelodeon.
             </p>
           </div>
 
-          <div className="bg-slate-800/50 p-3.5 rounded-2xl border border-white/5 flex flex-col gap-1.5 text-xs">
-            <span className="font-bold text-amber-300 flex items-center gap-1.5">
-              <Heart className="w-4 h-4 text-rose-400 fill-current" />
-              Features & Architecture
+          <div className="bg-amber-50/90 p-3.5 rounded-2xl border-2 border-amber-400 shadow-sm flex flex-col gap-1.5 text-xs">
+            <span className="font-cartoon font-bold text-amber-950 flex items-center gap-1.5 uppercase tracking-wide">
+              <Heart className="w-4 h-4 text-rose-500 fill-current" />
+              Engine & Architecture
             </span>
-            <ul className="list-disc list-inside space-y-1 text-slate-300 text-[11px]">
-              <li>High-performance 60 FPS HTML5 Canvas engine with delta-time</li>
-              <li>Procedural cartoon vector rendering for crisp Retina displays</li>
-              <li>Synthesized retro arcade audio & tropical soundtrack (Web Audio)</li>
-              <li>Responsive mobile touchscreen virtual joystick & desktop controls</li>
-              <li>Local storage progression & high-score tracking</li>
+            <ul className="list-disc list-inside space-y-1 text-amber-900 text-[11px] font-medium">
+              <li>HTML5 Canvas 60 FPS sub-pixel physics engine with high-DPI scaling</li>
+              <li>Procedural 2000s cartoon SpongeBob animation system</li>
+              <li>Fully customizable on-screen mobile joystick & catch button layout</li>
+              <li>Dual synthesized nostalgic cartoon soundtrack via Web Audio API</li>
+              <li>Multi-level progression with local high score persistence</li>
             </ul>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="pt-3 border-t border-white/10 flex items-center justify-between">
+        <div className="pt-3 border-t-2 border-amber-400 flex items-center justify-between">
           <a
             href="https://github.com"
             target="_blank"
             rel="noreferrer"
-            className="text-xs text-sky-300 hover:text-sky-200 flex items-center gap-1 transition-colors"
+            className="text-xs text-amber-900 hover:text-amber-950 font-bold flex items-center gap-1 underline underline-offset-2 transition-colors"
           >
             <span>GitHub Repository</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -78,9 +80,9 @@ export const AboutModal: React.FC<AboutModalProps> = ({ onClose }) => {
               soundManager.playButtonClick();
               onClose();
             }}
-            className="py-2 px-5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs sm:text-sm shadow-md active:scale-95 transition-all"
+            className="py-2 px-5 rounded-2xl bg-gradient-to-b from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-amber-950 font-cartoon font-bold text-sm border-2 border-amber-700 shadow-[0_3px_0_#92400e] active:translate-y-0.5 active:shadow-[0_1px_0_#92400e] transition-all cursor-pointer"
           >
-            Close
+            CLOSE
           </button>
         </div>
       </div>

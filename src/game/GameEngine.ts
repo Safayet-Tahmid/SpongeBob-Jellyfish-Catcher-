@@ -247,12 +247,14 @@ export class GameEngine {
     if (jelly.type === 'GOLD') {
       this.goldenCatches++;
       soundManager.playCatch('GOLD');
-      this.triggerScreenShake(0.2, 5);
+      this.player.triggerCheer(0.9);
+      this.triggerScreenShake(0.18, 4);
       this.particles.addFloatingText(jelly.x, jelly.y, `+${pts} GOLD!`, '#facc15', 24);
       this.particles.spawnCatchBurst(jelly.x, jelly.y, '#facc15', true);
     } else if (jelly.type === 'RAINBOW') {
       soundManager.playCatch('RAINBOW');
-      this.triggerScreenShake(0.3, 7);
+      this.player.triggerCheer(1.3);
+      this.triggerScreenShake(0.22, 5);
       this.particles.addFloatingText(jelly.x, jelly.y, `+${pts} RAINBOW!`, '#ec4899', 26);
       this.particles.spawnCatchBurst(jelly.x, jelly.y, '#38bdf8', true);
     } else {
@@ -279,6 +281,7 @@ export class GameEngine {
   private advanceLevel() {
     this.currentLevel++;
     this.levelCatches = 0;
+    this.player.triggerCheer(1.6);
     soundManager.playLevelUp();
     this.particles.addFloatingText(
       this.getWidth() / 2,

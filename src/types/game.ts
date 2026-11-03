@@ -48,6 +48,20 @@ export interface PlayerStats {
   gamesPlayed: number;
 }
 
+export interface CustomControlLayout {
+  joystickSize: 'small' | 'medium' | 'large' | 'xlarge';
+  catchBtnSize: 'small' | 'medium' | 'large' | 'xlarge';
+  joystickScale: number; // 0.75 to 1.6
+  catchBtnScale: number; // 0.75 to 1.6
+  joystickX: number; // px or % offset
+  joystickY: number; // px or % offset
+  catchBtnX: number;
+  catchBtnY: number;
+  hudScale: number; // 0.8 to 1.2
+  opacity: number; // 0.4 to 1.0
+  pauseBtnPos: 'top-right' | 'top-center' | 'top-left';
+}
+
 export interface GameSettings {
   musicEnabled: boolean;
   sfxEnabled: boolean;
@@ -56,6 +70,7 @@ export interface GameSettings {
   reducedMotion: boolean;
   sensitivity: number; // 0.5 to 1.5
   joystickSize: 'small' | 'medium' | 'large';
+  controlLayout: CustomControlLayout;
 }
 
 export interface FloatingText {

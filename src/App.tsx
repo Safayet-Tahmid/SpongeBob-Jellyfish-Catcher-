@@ -168,8 +168,10 @@ export default function App() {
       } else if (e.code === 'KeyP' || e.code === 'Escape') {
         if (gameState === 'PLAYING') {
           engineRef.current?.pause();
+          soundManager.pauseBackgroundMusic();
         } else if (gameState === 'PAUSED') {
           engineRef.current?.resume();
+          soundManager.resumeBackgroundMusic();
         }
       }
 
@@ -202,10 +204,12 @@ export default function App() {
 
   const handlePauseGame = () => {
     engineRef.current?.pause();
+    soundManager.pauseBackgroundMusic();
   };
 
   const handleResumeGame = () => {
     engineRef.current?.resume();
+    soundManager.resumeBackgroundMusic();
   };
 
   const handleRestartGame = () => {

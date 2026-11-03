@@ -8,162 +8,257 @@ interface MobileControlsProps {
   sensitivity?: number;
 }
 
+interface TouchPointerState {
+  startX: number;
+  startY: number;
+  anchorX: number;
+  anchorY: number;
+  startTime: number;
+  isDrag: boolean;
+}
+
+interface TapRipple {
+  id: number;
+  x: number;
+  y: number;
+}
+
+const TAP_DISTANCE_THRESHOLD = 12; // px movement threshold to distinguish tap from drag
+const TAP_TIME_THRESHOLD = 320; // ms maximum duration for a tap
+const MAX_DRAG_RADIUS = 55; // px maximum distance from anchor for 100% velocity
+const DEADZONE = 6; // px inner deadzone
+
 export const MobileControls: React.FC<MobileControlsProps> = ({
   onMove,
   onCatch,
-  layout,
   sensitivity = 1.0,
 }) => {
-  const joystickBaseRef = useRef<HTMLDivElement>(null);
-  const [knobPos, setKnobPos] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [isCatchPressed, setIsCatchPressed] = useState(false);
-  const pointerIdRef = useRef<number | null>(null);
+  // Active pointer tracking map: pointerId -> TouchPointerState
+  const pointersRef = useRef<Map<number, TouchPointerState>>(new Map());
+  const dragPointerIdRef = useRef<number | null>(null);
 
-  // Scaled dimensions from layout
-  const joystickScale = layout?.joystickScale || 1.15;
-  const catchBtnScale = layout?.catchBtnScale || 1.25;
-  const opacity = layout?.opacity ?? 0.9;
+  // Visual feedback states for subtle cartoon ocean cues
+  const [dragVisual, setDragVisual] = useState<{
+    anchorX: number;
+    anchorY: number;
+    currentX: number;
+    currentY: number;
+  } | null>(null);
 
-  const baseRadius = 60 * joystickScale;
-  const knobRadius = 26 * joystickScale;
-  const catchBtnSize = 84 * catchBtnScale;
+  const [tapRipples, setTapRipples] = useState<TapRipple[]>([]);
+  const rippleIdCounter = useRef(0);
 
-  const handlePointerDown = (e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (pointerIdRef.current !== null) return;
+  // Spawn a quick cartoon ripple burst at tap position
+  const triggerTapVisual = useCallback((x: number, y: number) => {
+    const id = ++rippleIdCounter.current;
+    setTapRipples((prev) => [...prev.slice(-3), { id, x, y }]);
+    setTimeout(() => {
+      setTapRipples((prev) => prev.filter((r) => r.id !== id));
+    }, 280);
+  }, []);
 
-    pointerIdRef.current = e.pointerId;
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    setIsDragging(true);
-    updateKnob(e.clientX, e.clientY);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (pointerIdRef.current !== e.pointerId) return;
-    e.preventDefault();
-    updateKnob(e.clientX, e.clientY);
-  };
-
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (pointerIdRef.current !== e.pointerId) return;
-    e.preventDefault();
-    pointerIdRef.current = null;
-    setIsDragging(false);
-    setKnobPos({ x: 0, y: 0 });
-    onMove(0, 0);
-  };
-
-  const updateKnob = useCallback(
-    (clientX: number, clientY: number) => {
-      if (!joystickBaseRef.current) return;
-      const rect = joystickBaseRef.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-
-      let dx = clientX - centerX;
-      let dy = clientY - centerY;
-      const dist = Math.hypot(dx, dy);
-
-      if (dist > baseRadius) {
-        dx = (dx / dist) * baseRadius;
-        dy = (dy / dist) * baseRadius;
-      }
-
-      setKnobPos({ x: dx, y: dy });
-
-      const normX = (dx / baseRadius) * sensitivity;
-      const normY = (dy / baseRadius) * sensitivity;
-      onMove(normX, normY);
-    },
-    [baseRadius, onMove, sensitivity]
-  );
-
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       onMove(0, 0);
+      pointersRef.current.clear();
+      dragPointerIdRef.current = null;
     };
   }, [onMove]);
 
-  // Safe area aware base offsets: ensure at least 24px + safe area from any edge
-  const joyX = layout?.joystickX ?? 20;
-  const joyY = layout?.joystickY ?? 20;
-  const catchX = layout?.catchBtnX ?? 20;
-  const catchY = layout?.catchBtnY ?? 20;
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Only capture primary button / touch pointers
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+
+    // Prevent default scrolling/zooming on mobile
+    e.preventDefault();
+
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch {
+      // ignore in older browsers
+    }
+
+    const state: TouchPointerState = {
+      startX: e.clientX,
+      startY: e.clientY,
+      anchorX: e.clientX,
+      anchorY: e.clientY,
+      startTime: performance.now(),
+      isDrag: false,
+    };
+
+    pointersRef.current.set(e.pointerId, state);
+
+    // If we don't have an active drag pointer, this pointer could become one
+    if (dragPointerIdRef.current === null) {
+      dragPointerIdRef.current = e.pointerId;
+    }
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const ptr = pointersRef.current.get(e.pointerId);
+    if (!ptr) return;
+
+    e.preventDefault();
+
+    const dxFromStart = e.clientX - ptr.startX;
+    const dyFromStart = e.clientY - ptr.startY;
+    const distFromStart = Math.hypot(dxFromStart, dyFromStart);
+
+    // Check if movement exceeds tap threshold
+    if (!ptr.isDrag && distFromStart > TAP_DISTANCE_THRESHOLD) {
+      ptr.isDrag = true;
+    }
+
+    // Only update movement if this pointer is the designated drag pointer
+    if (ptr.isDrag && dragPointerIdRef.current === e.pointerId) {
+      let dx = e.clientX - ptr.anchorX;
+      let dy = e.clientY - ptr.anchorY;
+      let dist = Math.hypot(dx, dy);
+
+      // Dynamic floating anchor: if pulled beyond max radius, slide anchor towards finger
+      // This gives instantaneous direction changes (never sluggish)
+      if (dist > MAX_DRAG_RADIUS) {
+        const angle = Math.atan2(dy, dx);
+        ptr.anchorX = e.clientX - Math.cos(angle) * MAX_DRAG_RADIUS;
+        ptr.anchorY = e.clientY - Math.sin(angle) * MAX_DRAG_RADIUS;
+        dx = e.clientX - ptr.anchorX;
+        dy = e.clientY - ptr.anchorY;
+        dist = MAX_DRAG_RADIUS;
+      }
+
+      // Calculate normalized directional input with deadzone
+      if (dist < DEADZONE) {
+        onMove(0, 0);
+      } else {
+        const activeRange = MAX_DRAG_RADIUS - DEADZONE;
+        const normalizedMagnitude = Math.min(1, (dist - DEADZONE) / activeRange);
+        const speed = normalizedMagnitude * sensitivity;
+        const normX = (dx / dist) * speed;
+        const normY = (dy / dist) * speed;
+
+        onMove(
+          Math.max(-1, Math.min(1, normX)),
+          Math.max(-1, Math.min(1, normY))
+        );
+      }
+
+      // Update subtle visual drag indicator
+      setDragVisual({
+        anchorX: ptr.anchorX,
+        anchorY: ptr.anchorY,
+        currentX: e.clientX,
+        currentY: e.clientY,
+      });
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    const ptr = pointersRef.current.get(e.pointerId);
+    if (!ptr) return;
+
+    e.preventDefault();
+
+    const elapsed = performance.now() - ptr.startTime;
+    const finalDist = Math.hypot(e.clientX - ptr.startX, e.clientY - ptr.startY);
+
+    // Accurate Smart Tap Detection:
+    // If pointer was never marked as dragging, stayed within distance threshold,
+    // and was released within the quick tap time window -> CATCH!
+    if (!ptr.isDrag && finalDist <= TAP_DISTANCE_THRESHOLD && elapsed <= TAP_TIME_THRESHOLD) {
+      onCatch();
+      triggerTapVisual(e.clientX, e.clientY);
+    }
+
+    // If the drag pointer was released, immediately stop movement to allow deceleration
+    if (dragPointerIdRef.current === e.pointerId) {
+      onMove(0, 0);
+      setDragVisual(null);
+      dragPointerIdRef.current = null;
+
+      // If another pointer is still pressed down and already dragging, promote it
+      for (const [otherId, otherPtr] of pointersRef.current.entries()) {
+        if (otherId !== e.pointerId && otherPtr.isDrag) {
+          dragPointerIdRef.current = otherId;
+          break;
+        }
+      }
+    }
+
+    pointersRef.current.delete(e.pointerId);
+
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handlePointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (dragPointerIdRef.current === e.pointerId) {
+      onMove(0, 0);
+      setDragVisual(null);
+      dragPointerIdRef.current = null;
+    }
+    pointersRef.current.delete(e.pointerId);
+  };
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-30 select-none overflow-hidden">
-      {/* Virtual Joystick (Positioned with safe area + layout offset) */}
-      <div
-        ref={joystickBaseRef}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
-        style={{
-          left: `calc(max(1.25rem, env(safe-area-inset-left, 1.25rem) + 0.5rem) + ${joyX}px)`,
-          bottom: `calc(max(1.25rem, env(safe-area-inset-bottom, 1.25rem) + 0.5rem) + ${joyY}px)`,
-          width: baseRadius * 2,
-          height: baseRadius * 2,
-          opacity,
-        }}
-        className={`pointer-events-auto absolute rounded-full bg-slate-950/80 border-4 border-amber-400 shadow-[0_6px_20px_rgba(0,0,0,0.6)] flex items-center justify-center touch-none transition-transform ${
-          isDragging ? 'scale-105 border-amber-300 ring-4 ring-amber-400/40' : ''
-        }`}
-      >
-        {/* Direction Guidelines */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30">
-          <div className="w-full h-1 bg-amber-400/50" />
-          <div className="h-full w-1 bg-amber-400/50 absolute" />
-        </div>
+    <div
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
+      className="absolute inset-0 z-10 touch-none select-none overflow-hidden cursor-crosshair pointer-events-auto"
+      style={{ touchAction: 'none' }}
+    >
+      {/* Subtle Drag Feedback: Appears only while actively moving SpongeBob */}
+      {dragVisual && (
+        <div className="absolute inset-0 pointer-events-none select-none">
+          {/* Floating Anchor Bubble Base */}
+          <div
+            style={{
+              left: `${dragVisual.anchorX}px`,
+              top: `${dragVisual.anchorY}px`,
+              transform: 'translate(-50%, -50%)',
+            }}
+            className="absolute w-20 h-20 rounded-full border-2 border-sky-300/40 bg-sky-500/10 backdrop-blur-[1px] animate-pulse"
+          >
+            <div className="absolute inset-0 flex items-center justify-center opacity-30">
+              <div className="w-1.5 h-1.5 rounded-full bg-white" />
+            </div>
+          </div>
 
-        {/* Inner Knob (2000s Cartoon Arcade Puck) */}
+          {/* Current Drag Bubble Thumb Puck */}
+          <div
+            style={{
+              left: `${dragVisual.currentX}px`,
+              top: `${dragVisual.currentY}px`,
+              transform: 'translate(-50%, -50%)',
+            }}
+            className="absolute w-10 h-10 rounded-full bg-gradient-to-tr from-sky-400/80 to-cyan-300/80 border-2 border-white/80 shadow-[0_0_12px_rgba(56,189,248,0.5)] flex items-center justify-center transition-transform duration-75"
+          >
+            <div className="w-2.5 h-2.5 rounded-full bg-white/70" />
+          </div>
+        </div>
+      )}
+
+      {/* Tap Bubble Burst Animation: Quick playful feedback on tap-to-catch */}
+      {tapRipples.map((ripple) => (
         <div
+          key={ripple.id}
           style={{
-            width: knobRadius * 2,
-            height: knobRadius * 2,
-            transform: `translate3d(${knobPos.x}px, ${knobPos.y}px, 0)`,
+            left: `${ripple.x}px`,
+            top: `${ripple.y}px`,
+            transform: 'translate(-50%, -50%)',
           }}
-          className={`rounded-full bg-gradient-to-b from-sky-300 via-sky-500 to-sky-700 border-3 border-white shadow-lg pointer-events-none transition-transform duration-75 flex items-center justify-center ${
-            isDragging ? 'scale-110 shadow-sky-500/60' : ''
-          }`}
+          className="absolute pointer-events-none select-none flex items-center justify-center"
         >
-          <div className="w-3.5 h-3.5 rounded-full bg-white/40" />
+          <div className="w-14 h-14 rounded-full border-3 border-amber-300/90 bg-amber-400/20 animate-ping duration-300" />
+          <span className="absolute text-xl animate-bounce">🕸️</span>
         </div>
-      </div>
-
-      {/* Catch Action Button (Positioned with safe area + layout offset) */}
-      <button
-        onPointerDown={(e) => {
-          e.preventDefault();
-          setIsCatchPressed(true);
-          onCatch();
-        }}
-        onPointerUp={(e) => {
-          e.preventDefault();
-          setIsCatchPressed(false);
-        }}
-        onPointerCancel={() => setIsCatchPressed(false)}
-        style={{
-          right: `calc(max(1.25rem, env(safe-area-inset-right, 1.25rem) + 0.5rem) + ${catchX}px)`,
-          bottom: `calc(max(1.25rem, env(safe-area-inset-bottom, 1.25rem) + 0.5rem) + ${catchY}px)`,
-          width: catchBtnSize,
-          height: catchBtnSize,
-          opacity,
-        }}
-        aria-label="Catch Jellyfish"
-        className={`pointer-events-auto absolute rounded-full bg-gradient-to-b from-yellow-300 via-amber-400 to-amber-500 border-4 border-white shadow-[0_6px_20px_rgba(0,0,0,0.6)] text-slate-950 flex flex-col items-center justify-center font-cartoon font-black transition-all touch-none select-none active:scale-90 ${
-          isCatchPressed
-            ? 'translate-y-1 brightness-90 shadow-inner'
-            : 'border-b-6 border-amber-600 hover:scale-105 shadow-amber-500/50'
-        }`}
-      >
-        <span className="text-2xl sm:text-3xl leading-none drop-shadow">🕸️</span>
-        <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-slate-950 drop-shadow-sm -mt-0.5">
-          Catch!
-        </span>
-      </button>
+      ))}
     </div>
   );
 };

@@ -53,11 +53,11 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ onClose }) => {
               <div className="bg-amber-50/90 p-3 rounded-2xl border-2 border-amber-500 shadow-sm">
                 <span className="font-cartoon font-bold text-amber-950 block mb-1">📱 Mobile / Touchscreen:</span>
                 <p className="text-amber-900 leading-relaxed">
-                  <span className="font-bold text-amber-950">Virtual Joystick</span> (left thumb) to swim.
+                  <span className="font-bold text-amber-950">Touch & Drag</span> anywhere on screen to swim.
                   <br />
-                  <span className="font-bold text-amber-950">Big Catch Button</span> (right thumb) to swing!
+                  <span className="font-bold text-amber-950">Single Tap</span> anywhere on screen to swing net!
                   <br />
-                  <span className="text-[10px] text-amber-700 italic font-semibold">* You can resize & move buttons in Control Settings!</span>
+                  <span className="text-[10px] text-amber-700 italic font-semibold">✨ Full-screen freedom — no on-screen buttons blocking your view!</span>
                 </p>
               </div>
             </div>

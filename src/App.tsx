@@ -247,7 +247,6 @@ export default function App() {
       {/* HTML5 Game Canvas */}
       <canvas
         ref={canvasRef}
-        onClick={handleCatchAction}
         className="absolute inset-0 w-full h-full block cursor-crosshair touch-none"
       />
 
@@ -293,8 +292,8 @@ export default function App() {
         />
       )}
 
-      {/* 4. Mobile Virtual Controls */}
-      {gameState === 'PLAYING' && isTouchDevice && (
+      {/* 4. Full-Screen Mobile Touch & Gesture Controls */}
+      {gameState === 'PLAYING' && (
         <MobileControls
           onMove={handleJoystickMove}
           onCatch={handleCatchAction}

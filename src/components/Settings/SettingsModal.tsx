@@ -56,7 +56,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span>CUSTOMIZE CONTROLS</span>
             </span>
             <span className="text-[11px] bg-sky-100 text-sky-950 px-2 py-0.5 rounded-full border border-sky-800 font-bold">
-              Move & Resize
+              Touch & HUD
             </span>
           </button>
 

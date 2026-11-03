@@ -209,7 +209,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
         </div>
 
         <div className="text-[11px] text-sky-200">
-          Desktop: <span className="text-white font-bold">WASD / Space</span> · Mobile: <span className="text-white font-bold">Touch Joystick & Net</span>
+          Desktop: <span className="text-white font-bold">WASD / Space</span> · Mobile: <span className="text-white font-bold">Drag to Swim · Tap to Swing</span>
         </div>
       </div>
     </div>

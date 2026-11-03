@@ -173,7 +173,11 @@ export const GameHUD: React.FC<GameHUDProps> = ({
 
           {/* Sound Toggle Button (Min 40px touch area) */}
           <button
-            onClick={() => {
+            onPointerDown={(e) => e.stopPropagation()}
+            onPointerUp={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
               soundManager.playButtonClick();
               onToggleSound();
             }}
@@ -189,7 +193,11 @@ export const GameHUD: React.FC<GameHUDProps> = ({
 
           {/* Pause Button (Min 40px touch area) */}
           <button
-            onClick={() => {
+            onPointerDown={(e) => e.stopPropagation()}
+            onPointerUp={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
               soundManager.playButtonClick();
               onPause();
             }}

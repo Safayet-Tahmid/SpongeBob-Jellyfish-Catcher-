@@ -22,16 +22,17 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onLoaded }) => {
         const next = prev + 25;
         if (next >= 100) {
           clearInterval(timer);
-          setTimeout(() => onLoaded(), 250);
+          setTimeout(() => onLoaded(), 200);
           return 100;
         }
         return next;
       });
       setMessageIdx((prev) => (prev + 1) % LOADING_MESSAGES.length);
-    }, 280);
+    }, 240);
 
     return () => clearInterval(timer);
-  }, [onLoaded]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="absolute inset-0 z-50 bg-gradient-to-b from-sky-900 via-sky-800 to-sky-950 flex flex-col items-center justify-center p-6 text-center select-none">

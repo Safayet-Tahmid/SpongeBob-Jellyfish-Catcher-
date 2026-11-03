@@ -4,18 +4,19 @@ import path from 'path';
 import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
-  // Use BASE_PATH from GitHub Actions configure-pages, or repository name, or default to './'
+  // On Vercel, base is root '/'; on GitHub Actions, it's the repo subpath; otherwise relative './'
+  const isVercel = Boolean(process.env.VERCEL);
   const repoBase = process.env.GITHUB_REPOSITORY
     ? `/${process.env.GITHUB_REPOSITORY.split('/')[1]}/`
     : './';
-  const basePath = process.env.BASE_PATH || repoBase;
+  const basePath = isVercel ? '/' : (process.env.BASE_PATH || repoBase);
 
   return {
     base: basePath,
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(import.meta.dirname || '.', '.'),
       },
     },
     server: {

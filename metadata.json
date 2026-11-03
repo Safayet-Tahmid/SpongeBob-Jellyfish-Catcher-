@@ -1,0 +1,6 @@
+{
+  "name": "SpongeBob: Jellyfish Catcher",
+  "description": "A premium underwater arcade game in Jellyfish Fields. Catch jellyfish, dodge electric stings, and activate power-ups with SpongeBob!",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -253,18 +253,18 @@ export class Player {
       ctx.restore();
     }
 
-    // --- Legs & Shoes (Authentic stick legs, tube socks & shiny dress shoes) ---
+    // --- Legs & Shoes (Matching reference image: stick legs, pant cuffs, striped tube socks & bulbous dress shoes) ---
     const legY = 24 + bob;
     this.drawLegs(ctx, legY, legKick);
 
-    // --- Brown Square Pants ---
+    // --- Brown Square Pants & White Shirt with Tie ---
     const bodyY = bob;
     this.drawPantsAndShirt(ctx, bodyY);
 
-    // --- Yellow Sponge Body with Scalloped Sponge Edges ---
+    // --- Yellow Sponge Body with Scalloped Ruffles & Olive-Green Craters ---
     this.drawSpongeBody(ctx, bodyY, isShocked);
 
-    // --- Facial Expression & Features ---
+    // --- Facial Expression & Features (Matching reference image eyes, nose, cheeks, smile, and teeth) ---
     this.drawFace(ctx, bodyY, isShocked, isCheering);
 
     // --- Net & Arm Animation ---
@@ -276,113 +276,186 @@ export class Player {
   private drawLegs(ctx: CanvasRenderingContext2D, legY: number, legKick: number) {
     // Left Leg
     ctx.save();
-    ctx.translate(-10, legY);
+    ctx.translate(-11, legY);
     ctx.rotate(legKick);
-    // Yellow leg stick
-    ctx.strokeStyle = '#eab308';
-    ctx.lineWidth = 4.5;
+
+    // Brown pant cuff (from reference image)
+    ctx.fillStyle = '#78350f';
+    ctx.strokeStyle = '#451a03';
+    ctx.lineWidth = 1.6;
     ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(0, 13);
-    ctx.stroke();
-    // White sock
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(-3.5, 6, 7, 8);
-    // Red sock stripe
-    ctx.fillStyle = '#ef4444';
-    ctx.fillRect(-3.5, 8, 7, 1.8);
-    // Blue sock stripe
-    ctx.fillStyle = '#0284c7';
-    ctx.fillRect(-3.5, 11, 7, 1.8);
-    // Black dress shoe with heel
-    ctx.fillStyle = '#0f172a';
-    ctx.beginPath();
-    ctx.ellipse(3, 15, 7, 4.2, 0.05, 0, Math.PI * 2);
+    ctx.roundRect(-4.5, -2, 9, 5, 1);
     ctx.fill();
-    ctx.fillRect(-2, 16, 4, 3); // shoe heel
+    ctx.stroke();
+
+    // Yellow slender stick leg
+    ctx.strokeStyle = '#facc15';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(0, 3);
+    ctx.lineTo(0, 14);
+    ctx.stroke();
+
+    // White tube sock
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 0.8;
+    ctx.fillRect(-3.5, 7, 7, 8.5);
+    ctx.strokeRect(-3.5, 7, 7, 8.5);
+
+    // Blue sock stripe (top stripe, per reference image)
+    ctx.fillStyle = '#0284c7';
+    ctx.fillRect(-3.5, 8.5, 7, 1.6);
+
+    // Red sock stripe (bottom stripe, per reference image)
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(-3.5, 11.5, 7, 1.6);
+
+    // Glossy black cartoon dress shoe with heel and bulbous toe
+    ctx.fillStyle = '#09090b';
+    ctx.beginPath();
+    ctx.ellipse(3.5, 16.5, 7.5, 4.4, 0.05, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillRect(-2, 17.5, 4, 3.2); // shoe heel
+
+    // White glossy shine gleam on shoe toe
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.beginPath();
+    ctx.ellipse(5, 15, 2.5, 1.2, -0.2, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
 
     // Right Leg
     ctx.save();
-    ctx.translate(10, legY);
+    ctx.translate(11, legY);
     ctx.rotate(-legKick);
-    ctx.strokeStyle = '#eab308';
-    ctx.lineWidth = 4.5;
+
+    // Brown pant cuff
+    ctx.fillStyle = '#78350f';
+    ctx.strokeStyle = '#451a03';
+    ctx.lineWidth = 1.6;
     ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(0, 13);
+    ctx.roundRect(-4.5, -2, 9, 5, 1);
+    ctx.fill();
     ctx.stroke();
-    // White sock
+
+    // Yellow slender stick leg
+    ctx.strokeStyle = '#facc15';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(0, 3);
+    ctx.lineTo(0, 14);
+    ctx.stroke();
+
+    // White tube sock
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(-3.5, 6, 7, 8);
-    // Red sock stripe
-    ctx.fillStyle = '#ef4444';
-    ctx.fillRect(-3.5, 8, 7, 1.8);
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 0.8;
+    ctx.fillRect(-3.5, 7, 7, 8.5);
+    ctx.strokeRect(-3.5, 7, 7, 8.5);
+
     // Blue sock stripe
     ctx.fillStyle = '#0284c7';
-    ctx.fillRect(-3.5, 11, 7, 1.8);
-    // Black dress shoe with heel
-    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-3.5, 8.5, 7, 1.6);
+
+    // Red sock stripe
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(-3.5, 11.5, 7, 1.6);
+
+    // Glossy black cartoon dress shoe
+    ctx.fillStyle = '#09090b';
     ctx.beginPath();
-    ctx.ellipse(3, 15, 7, 4.2, 0.05, 0, Math.PI * 2);
+    ctx.ellipse(3.5, 16.5, 7.5, 4.4, 0.05, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillRect(-2, 16, 4, 3);
+    ctx.fillRect(-2, 17.5, 4, 3.2);
+
+    // White shine gleam
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.beginPath();
+    ctx.ellipse(5, 15, 2.5, 1.2, -0.2, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
   }
 
   private drawPantsAndShirt(ctx: CanvasRenderingContext2D, bodyY: number) {
-    // Brown square pants
-    ctx.fillStyle = '#78350f'; // classic cartoon brown
+    // White shirt sleeves on the sides of the body (per reference image)
+    ctx.fillStyle = '#ffffff';
     ctx.strokeStyle = '#451a03';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1.4;
     ctx.beginPath();
-    ctx.roundRect(-23, 11 + bodyY, 46, 14, 2);
+    ctx.roundRect(-27, 4 + bodyY, 6, 8, 2);
+    ctx.roundRect(21, 4 + bodyY, 6, 8, 2);
     ctx.fill();
     ctx.stroke();
 
-    // Black belt segments
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(-19, 12.5 + bodyY, 7, 3);
-    ctx.fillRect(-5, 12.5 + bodyY, 9, 3);
-    ctx.fillRect(11, 12.5 + bodyY, 7, 3);
+    // Brown square trousers
+    ctx.fillStyle = '#78350f'; // authentic cartoon brown
+    ctx.strokeStyle = '#451a03';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.roundRect(-24, 11 + bodyY, 48, 14, 2);
+    ctx.fill();
+    ctx.stroke();
 
-    // White shirt bar
+    // Four black belt dashes (2 on left, 2 on right, per reference image)
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-20, 13 + bodyY, 6.5, 3.2);
+    ctx.fillRect(-11, 13 + bodyY, 6.5, 3.2);
+    ctx.fillRect(4.5, 13 + bodyY, 6.5, 3.2);
+    ctx.fillRect(13.5, 13 + bodyY, 6.5, 3.2);
+
+    // White shirt horizontal stripe
     ctx.fillStyle = '#ffffff';
     ctx.strokeStyle = '#cbd5e1';
     ctx.lineWidth = 1;
-    ctx.fillRect(-23, 5 + bodyY, 46, 7);
-    ctx.strokeRect(-23, 5 + bodyY, 46, 7);
+    ctx.fillRect(-24, 4.5 + bodyY, 48, 7.5);
+    ctx.strokeRect(-24, 4.5 + bodyY, 48, 7.5);
 
-    // Folded white collar flaps
+    // Two sharp white triangular collar flaps pointing toward the tie
     ctx.fillStyle = '#ffffff';
     ctx.strokeStyle = '#451a03';
-    ctx.lineWidth = 1.2;
+    ctx.lineWidth = 1.4;
+
+    // Left collar flap
     ctx.beginPath();
-    ctx.moveTo(-7, 5 + bodyY);
-    ctx.lineTo(0, 11 + bodyY);
-    ctx.lineTo(-3.5, 5 + bodyY);
+    ctx.moveTo(-10, 4.5 + bodyY);
+    ctx.lineTo(-1, 11 + bodyY);
+    ctx.lineTo(-4, 4.5 + bodyY);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
+    // Right collar flap
     ctx.beginPath();
-    ctx.moveTo(7, 5 + bodyY);
-    ctx.lineTo(0, 11 + bodyY);
-    ctx.lineTo(3.5, 5 + bodyY);
+    ctx.moveTo(10, 4.5 + bodyY);
+    ctx.lineTo(1, 11 + bodyY);
+    ctx.lineTo(4, 4.5 + bodyY);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
-    // Bright crimson necktie
-    ctx.fillStyle = '#dc2626';
+    // Bright red four-in-hand necktie (diamond knot & hanging diamond blade)
+    ctx.fillStyle = '#ef4444';
     ctx.strokeStyle = '#991b1b';
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 1.2;
+
+    // Tie knot
     ctx.beginPath();
-    ctx.moveTo(-3, 5.5 + bodyY);
-    ctx.lineTo(3, 5.5 + bodyY);
-    ctx.lineTo(4, 12 + bodyY);
-    ctx.lineTo(0, 16 + bodyY);
-    ctx.lineTo(-4, 12 + bodyY);
+    ctx.moveTo(-3, 5 + bodyY);
+    ctx.lineTo(3, 5 + bodyY);
+    ctx.lineTo(2.5, 9 + bodyY);
+    ctx.lineTo(-2.5, 9 + bodyY);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Tie blade hanging down over belt
+    ctx.beginPath();
+    ctx.moveTo(-2.5, 9 + bodyY);
+    ctx.lineTo(2.5, 9 + bodyY);
+    ctx.lineTo(4.5, 14.5 + bodyY);
+    ctx.lineTo(0, 18.5 + bodyY);
+    ctx.lineTo(-4.5, 14.5 + bodyY);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
@@ -395,69 +468,90 @@ export class Player {
   ) {
     ctx.save();
 
-    // Body color
+    // Body yellow color
     if (isShocked) {
       ctx.fillStyle = Math.random() < 0.5 ? '#fef08a' : '#86efac';
       ctx.strokeStyle = '#15803d';
     } else {
-      ctx.fillStyle = '#facc15'; // vibrant sponge yellow
-      ctx.strokeStyle = '#a16207'; // warm cartoon outline
+      ctx.fillStyle = '#fde047'; // bright golden cartoon yellow from reference
+      ctx.strokeStyle = '#854d0e'; // crisp warm cartoon outline
     }
 
     ctx.lineWidth = 2.4;
 
     // Scalloped wavy organic sponge edge perimeter
-    const w = 48;
-    const h = 42;
-    const top = -36 + bodyY;
-    const left = -24;
+    const w = 50;
+    const h = 44;
+    const top = -38 + bodyY;
+    const left = -25;
 
     ctx.beginPath();
     ctx.moveTo(left, top + 6);
 
-    // Top wavy edge
-    for (let x = left; x <= left + w; x += 8) {
-      const wave = Math.sin((x / 8) * Math.PI) * 1.5;
-      ctx.lineTo(x, top + wave);
+    // Top wavy edge (5 soft scalloped ripples)
+    const topWaves = 5;
+    const topStep = w / topWaves;
+    for (let i = 0; i < topWaves; i++) {
+      const x1 = left + i * topStep;
+      const x2 = x1 + topStep;
+      ctx.quadraticCurveTo(x1 + topStep / 2, top - 2.2, x2, top);
     }
 
-    // Right wavy edge
-    for (let y = top; y <= top + h; y += 7) {
-      const wave = Math.sin((y / 7) * Math.PI) * 1.5;
-      ctx.lineTo(left + w + wave, y);
+    // Right wavy edge (5 soft scalloped ripples)
+    const sideWaves = 5;
+    const sideStep = h / sideWaves;
+    for (let i = 0; i < sideWaves; i++) {
+      const y1 = top + i * sideStep;
+      const y2 = y1 + sideStep;
+      ctx.quadraticCurveTo(left + w + 2.2, y1 + sideStep / 2, left + w, y2);
     }
 
     // Bottom edge
-    ctx.lineTo(left + w, top + h);
     ctx.lineTo(left, top + h);
 
-    // Left wavy edge
-    for (let y = top + h; y >= top; y -= 7) {
-      const wave = Math.sin((y / 7) * Math.PI) * 1.5;
-      ctx.lineTo(left - wave, y);
+    // Left wavy edge (5 soft scalloped ripples)
+    for (let i = sideWaves - 1; i >= 0; i--) {
+      const y1 = top + (i + 1) * sideStep;
+      const y2 = top + i * sideStep;
+      ctx.quadraticCurveTo(left - 2.2, y2 + sideStep / 2, left, y2);
     }
+
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
-    // Organic sponge craters & pores (classic SpongeBob olive-green craters)
-    ctx.fillStyle = '#ca8a04';
-    ctx.globalAlpha = 0.4;
+    // Olive-green sponge craters & pores (Accurately positioned per reference image)
+    ctx.fillStyle = '#65a30d'; // olive avocado green from reference
+    ctx.globalAlpha = 0.45;
+
+    // Distinctive craters matching reference image
     [
-      [-17, -26, 3.8],
-      [-12, -14, 2.8],
-      [16, -28, 4.2],
-      [17, -12, 3.2],
-      [8, -31, 2.5],
-      [-7, -7, 3.5],
-      [6, -6, 2.8],
+      // Upper-left large crater
+      [-19, -30, 4.5],
+      // Mid-left crater
+      [-21, -18, 3.6],
+      // Lower-left large crater
+      [-18, -6, 4.8],
+      // Lower-left corner small crater
+      [-13, -1, 2.5],
+      // Upper-mid forehead small crater
+      [-4, -32, 2.8],
+      // Upper-right forehead small crater
+      [10, -31, 3.2],
+      // Mid-right large crater
+      [19, -17, 4.6],
+      // Lower-right crater
+      [17, -5, 3.8],
+      // Interior cheek pore
+      [-8, -2, 2.4],
+      [10, -1, 2.6],
     ].forEach(([px, py, rad]) => {
       ctx.beginPath();
       ctx.arc(px, py + bodyY, rad, 0, Math.PI * 2);
       ctx.fill();
     });
-    ctx.globalAlpha = 1.0;
 
+    ctx.globalAlpha = 1.0;
     ctx.restore();
   }
 
@@ -470,196 +564,225 @@ export class Player {
     const eyeY = -23 + bodyY;
 
     if (this.isBlinking) {
-      // Blinking lines with eyelashes
+      // Blinking lines with curved eyelashes
       ctx.strokeStyle = '#0f172a';
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = 2.6;
       ctx.beginPath();
-      ctx.moveTo(-16, eyeY);
-      ctx.lineTo(-2, eyeY);
-      ctx.moveTo(2, eyeY);
-      ctx.lineTo(16, eyeY);
+      ctx.moveTo(-18, eyeY);
+      ctx.lineTo(-1, eyeY);
+      ctx.moveTo(1, eyeY);
+      ctx.lineTo(18, eyeY);
       ctx.stroke();
+
+      // 3 eyelashes per eye while blinking
+      ctx.lineWidth = 2;
+      [-14, -9.5, -5].forEach((lx) => {
+        ctx.beginPath();
+        ctx.moveTo(lx, eyeY);
+        ctx.lineTo(lx - 1.5, eyeY - 6);
+        ctx.stroke();
+      });
+      [5, 9.5, 14].forEach((rx) => {
+        ctx.beginPath();
+        ctx.moveTo(rx, eyeY);
+        ctx.lineTo(rx + 1.5, eyeY - 6);
+        ctx.stroke();
+      });
     } else if (isShocked) {
-      // Comic startled wide eyes with lightning
+      // Startled electrified eyes
       ctx.fillStyle = '#ffffff';
       ctx.strokeStyle = '#0f172a';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.2;
       ctx.beginPath();
-      ctx.arc(-9, eyeY, 9, 0, Math.PI * 2);
-      ctx.arc(9, eyeY, 9, 0, Math.PI * 2);
+      ctx.arc(-9.5, eyeY, 9.5, 0, Math.PI * 2);
+      ctx.arc(9.5, eyeY, 9.5, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
       ctx.fillStyle = '#ef4444';
       ctx.beginPath();
-      ctx.arc(-9, eyeY, 4, 0, Math.PI * 2);
-      ctx.arc(9, eyeY, 4, 0, Math.PI * 2);
+      ctx.arc(-9.5, eyeY, 4.2, 0, Math.PI * 2);
+      ctx.arc(9.5, eyeY, 4.2, 0, Math.PI * 2);
       ctx.fill();
 
       // Comic shock lightning arcs
-      ctx.strokeStyle = '#fef08a';
+      ctx.strokeStyle = '#facc15';
       ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.moveTo(-22, eyeY - 12);
-      ctx.lineTo(-14, eyeY - 20);
-      ctx.lineTo(-18, eyeY - 26);
-      ctx.moveTo(22, eyeY - 12);
-      ctx.lineTo(14, eyeY - 20);
-      ctx.lineTo(18, eyeY - 26);
+      ctx.moveTo(-24, eyeY - 14);
+      ctx.lineTo(-16, eyeY - 22);
+      ctx.lineTo(-20, eyeY - 28);
+      ctx.moveTo(24, eyeY - 14);
+      ctx.lineTo(16, eyeY - 22);
+      ctx.lineTo(20, eyeY - 28);
       ctx.stroke();
     } else {
-      // Characteristic large blue cartoon eyes touching in center
+      // 🌟 HUGE CARTOON EYES TOUCHING IN CENTER (Exactly matching reference image)
       ctx.fillStyle = '#ffffff';
       ctx.strokeStyle = '#0f172a';
-      ctx.lineWidth = 1.8;
+      ctx.lineWidth = 2.0;
 
-      // Left eye
+      // Left Eye
       ctx.beginPath();
-      ctx.arc(-8.5, eyeY, 8.5, 0, Math.PI * 2);
+      ctx.arc(-9, eyeY, 9.5, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
-      // Right eye
+      // Right Eye
       ctx.beginPath();
-      ctx.arc(8.5, eyeY, 8.5, 0, Math.PI * 2);
+      ctx.arc(9, eyeY, 9.5, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
-      // 3 curved eyelashes above each eye
-      ctx.lineWidth = 2;
+      // Three thick black eyelashes above each eye (pointing up like sunbeams, per reference)
+      ctx.lineWidth = 2.2;
       ctx.strokeStyle = '#0f172a';
-      [-13, -8.5, -4].forEach((lx) => {
+      ctx.lineCap = 'round';
+
+      // Left eye 3 lashes
+      [-14.5, -9, -3.5].forEach((lx, idx) => {
         ctx.beginPath();
-        ctx.moveTo(lx, eyeY - 8.5);
-        ctx.lineTo(lx - 1.5, eyeY - 14.5);
+        ctx.moveTo(lx, eyeY - 9.2);
+        const angleOffset = idx === 0 ? -3 : idx === 1 ? 0 : 2.5;
+        ctx.lineTo(lx + angleOffset, eyeY - 16.5);
         ctx.stroke();
       });
-      [4, 8.5, 13].forEach((rx) => {
+
+      // Right eye 3 lashes
+      [3.5, 9, 14.5].forEach((rx, idx) => {
         ctx.beginPath();
-        ctx.moveTo(rx, eyeY - 8.5);
-        ctx.lineTo(rx + 1.5, eyeY - 14.5);
+        ctx.moveTo(rx, eyeY - 9.2);
+        const angleOffset = idx === 0 ? -2.5 : idx === 1 ? 0 : 3;
+        ctx.lineTo(rx + angleOffset, eyeY - 16.5);
         ctx.stroke();
       });
 
-      // Bright blue irises
-      const lookOffset = this.facing === 'right' ? 1.8 : -1.8;
-      ctx.fillStyle = '#0284c7';
+      // Vibrant cyan / light blue irises (per reference image)
+      const lookOffset = this.facing === 'right' ? 1.5 : -1.5;
+      ctx.fillStyle = '#06b6d4'; // bright cyan from reference
+      ctx.strokeStyle = '#0891b2';
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.arc(-7 + lookOffset, eyeY, 4.5, 0, Math.PI * 2);
-      ctx.arc(10 + lookOffset, eyeY, 4.5, 0, Math.PI * 2);
+      ctx.arc(-8 + lookOffset, eyeY, 5.0, 0, Math.PI * 2);
+      ctx.arc(10 + lookOffset, eyeY, 5.0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Large black pupils
+      ctx.fillStyle = '#09090b';
+      ctx.beginPath();
+      ctx.arc(-8 + lookOffset, eyeY, 3.2, 0, Math.PI * 2);
+      ctx.arc(10 + lookOffset, eyeY, 3.2, 0, Math.PI * 2);
       ctx.fill();
 
-      // Black pupils
-      ctx.fillStyle = '#0f172a';
-      ctx.beginPath();
-      ctx.arc(-7 + lookOffset, eyeY, 2.5, 0, Math.PI * 2);
-      ctx.arc(10 + lookOffset, eyeY, 2.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // White sparkle gleam
+      // Crisp white catchlight reflection dots
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
-      ctx.arc(-8, eyeY - 1.8, 1.4, 0, Math.PI * 2);
-      ctx.arc(9, eyeY - 1.8, 1.4, 0, Math.PI * 2);
+      ctx.arc(-9.2 + lookOffset, eyeY - 1.6, 1.5, 0, Math.PI * 2);
+      ctx.arc(8.8 + lookOffset, eyeY - 1.6, 1.5, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // --- Long Cartoon Nose ---
+    // --- Pill-Shaped Curved Nose (Overlapping bottom center of eyes, per reference) ---
     ctx.save();
-    ctx.strokeStyle = '#a16207';
-    ctx.lineWidth = 2.4;
-    ctx.fillStyle = '#fde047';
+    ctx.strokeStyle = '#854d0e';
+    ctx.lineWidth = 2.2;
+    ctx.fillStyle = '#fef08a';
     ctx.beginPath();
-    ctx.ellipse(0, -15 + bodyY, 3.4, 8, 0.12, 0, Math.PI * 2);
+    ctx.ellipse(0, -14.5 + bodyY, 3.8, 8.5, 0.08, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
     ctx.restore();
 
-    // --- Curved Rosy Cheeks & Freckles ---
-    ctx.fillStyle = 'rgba(249, 115, 22, 0.55)';
+    // --- Rosy Bulbous Cheeks & Freckles (Per reference image) ---
+    const cheekY = -12.5 + bodyY;
+
+    // Cheerful orange-red blush cheeks
+    ctx.fillStyle = 'rgba(249, 115, 22, 0.65)';
     ctx.beginPath();
-    ctx.arc(-17, -13 + bodyY, 5, 0, Math.PI * 2);
-    ctx.arc(17, -13 + bodyY, 5, 0, Math.PI * 2);
+    ctx.arc(-18, cheekY, 5.5, 0, Math.PI * 2);
+    ctx.arc(18, cheekY, 5.5, 0, Math.PI * 2);
     ctx.fill();
 
-    // Cheek dimple curves
+    // Cheek dimple smile creases wrapping around cheeks (from reference)
     ctx.strokeStyle = '#c2410c';
-    ctx.lineWidth = 1.8;
+    ctx.lineWidth = 2.0;
+    // Left cheek dimple
     ctx.beginPath();
-    ctx.arc(-17, -13 + bodyY, 5.5, Math.PI * 0.7, Math.PI * 1.5);
+    ctx.arc(-18, cheekY, 6.2, Math.PI * 0.7, Math.PI * 1.55);
     ctx.stroke();
+    // Right cheek dimple
     ctx.beginPath();
-    ctx.arc(17, -13 + bodyY, 5.5, -Math.PI * 0.5, Math.PI * 0.3);
+    ctx.arc(18, cheekY, 6.2, -Math.PI * 0.55, Math.PI * 0.3);
     ctx.stroke();
 
-    // 3 freckles on each cheek
+    // Exactly 3 red/orange freckle dots on each cheek (per reference image)
     ctx.fillStyle = '#9a3412';
     [
-      [-18, -14],
-      [-16, -12],
-      [-15, -15],
-      [18, -14],
-      [16, -12],
-      [15, -15],
+      [-19.5, cheekY - 1],
+      [-17, cheekY + 1.8],
+      [-15.5, cheekY - 2],
+      [19.5, cheekY - 1],
+      [17, cheekY + 1.8],
+      [15.5, cheekY - 2],
     ].forEach(([cx, cy]) => {
       ctx.beginPath();
-      ctx.arc(cx, cy + bodyY, 1.0, 0, Math.PI * 2);
+      ctx.arc(cx, cy, 1.1, 0, Math.PI * 2);
       ctx.fill();
     });
 
-    // --- Mouth & Buck Teeth ---
+    // --- Mouth, Smile & Buck Teeth (Per reference image) ---
     const mouthY = -6 + bodyY;
 
     if (isShocked) {
-      // Shocked open mouth
-      ctx.fillStyle = '#991b1b';
-      ctx.strokeStyle = '#451a03';
-      ctx.lineWidth = 2;
+      // Startled open mouth
+      ctx.fillStyle = '#7f1d1d';
+      ctx.strokeStyle = '#450a0a';
+      ctx.lineWidth = 2.2;
       ctx.beginPath();
       ctx.arc(0, mouthY, 7.5, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
-    } else if (isCheering) {
-      // Big open celebration smile showing tongue & teeth
-      ctx.fillStyle = '#991b1b';
-      ctx.strokeStyle = '#451a03';
-      ctx.lineWidth = 2;
+    } else {
+      // 🌟 CLASSIC BROAD JOYFUL CRESCENT SMILE (Directly matching reference image)
+      ctx.fillStyle = '#450a0a'; // dark maroon/burgundy mouth interior
+      ctx.strokeStyle = '#09090b';
+      ctx.lineWidth = 2.4;
+
       ctx.beginPath();
-      ctx.arc(0, mouthY - 3, 14, 0.15, Math.PI - 0.15);
+      ctx.arc(0, mouthY - 3.5, 14.5, 0.18, Math.PI - 0.18);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
 
-      // Pink tongue
+      // Soft bright pink curved tongue resting in bottom of mouth
       ctx.fillStyle = '#f472b6';
+      ctx.strokeStyle = '#db2777';
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.arc(0, mouthY + 5, 7, Math.PI, 0);
+      ctx.arc(0, mouthY + 5.5, 7.5, Math.PI * 0.95, Math.PI * 2.05);
       ctx.fill();
-
-      // Two white front teeth hanging from upper lip
-      ctx.fillStyle = '#ffffff';
-      ctx.strokeStyle = '#451a03';
-      ctx.lineWidth = 1.4;
-      ctx.fillRect(-5.5, mouthY - 3, 4.5, 5.5);
-      ctx.strokeRect(-5.5, mouthY - 3, 4.5, 5.5);
-      ctx.fillRect(1, mouthY - 3, 4.5, 5.5);
-      ctx.strokeRect(1, mouthY - 3, 4.5, 5.5);
-    } else {
-      // Classic wide joyful grin
-      ctx.strokeStyle = '#78350f';
-      ctx.lineWidth = 2.4;
-      ctx.beginPath();
-      ctx.arc(0, mouthY - 4, 14, 0.2, Math.PI - 0.2);
       ctx.stroke();
 
-      // Two iconic square buck teeth with small gap
+      // Two iconic square white buck teeth with distinct gap (from reference image)
       ctx.fillStyle = '#ffffff';
-      ctx.strokeStyle = '#451a03';
-      ctx.lineWidth = 1.4;
-      ctx.fillRect(-5.5, mouthY + 1.5, 4.5, 5.5);
-      ctx.strokeRect(-5.5, mouthY + 1.5, 4.5, 5.5);
-      ctx.fillRect(1, mouthY + 1.5, 4.5, 5.5);
-      ctx.strokeRect(1, mouthY + 1.5, 4.5, 5.5);
+      ctx.strokeStyle = '#09090b';
+      ctx.lineWidth = 1.6;
+
+      // Left buck tooth
+      ctx.fillRect(-6.5, mouthY - 3, 5.0, 6.2);
+      ctx.strokeRect(-6.5, mouthY - 3, 5.0, 6.2);
+
+      // Right buck tooth
+      ctx.fillRect(1.5, mouthY - 3, 5.0, 6.2);
+      ctx.strokeRect(1.5, mouthY - 3, 5.0, 6.2);
+
+      // Soft chin dimple curve underneath lower lip (per reference image)
+      ctx.strokeStyle = '#ca8a04';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.arc(0, mouthY + 11.5, 4.5, Math.PI * 0.25, Math.PI * 0.75);
+      ctx.stroke();
     }
   }
 
@@ -678,20 +801,20 @@ export class Player {
     const swingAngle = this.isSwinging
       ? -0.65 + Math.sin(swingProgress * Math.PI) * 1.9
       : isCheering
-      ? -0.8 + Math.sin(this.animTimer * 10) * 0.2 // raised up in victory
+      ? -0.85 + Math.sin(this.animTimer * 10) * 0.25
       : 0.15 + Math.sin(this.animTimer * 2) * 0.08;
 
-    const armStartX = 18;
-    const armStartY = -5 + bodyY;
+    const armStartX = 20;
+    const armStartY = -4 + bodyY;
 
-    // Yellow cartoon arm
-    ctx.strokeStyle = '#eab308';
-    ctx.lineWidth = 5;
+    // Slender yellow cartoon noodle arm (per reference)
+    ctx.strokeStyle = '#facc15';
+    ctx.lineWidth = 4.5;
     ctx.lineCap = 'round';
     ctx.beginPath();
     ctx.moveTo(armStartX, armStartY);
     const handX = armStartX + 14;
-    const handY = isCheering ? armStartY - 12 : armStartY + 6;
+    const handY = isCheering ? armStartY - 14 : armStartY + 5;
     ctx.lineTo(handX, handY);
     ctx.stroke();
 
@@ -700,7 +823,7 @@ export class Player {
     ctx.translate(handX, handY);
     ctx.rotate(swingAngle);
 
-    // Bamboo pole
+    // Authentic bamboo net pole
     const poleLength = this.superNetActive ? 56 : 42;
     ctx.strokeStyle = '#b45309';
     ctx.lineWidth = 4.5;

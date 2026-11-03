@@ -23,14 +23,21 @@ export interface PowerUpActive {
   remaining: number; // in seconds left
 }
 
+export interface EnemySpawnConfig {
+  maxActiveEnemies: number; // Maximum simultaneously active electric enemies
+  initialEnemyDelay: number; // Seconds before the first enemy can spawn in this level
+  enemySpawnInterval: number; // Seconds to wait between enemy spawns
+}
+
 export interface LevelConfig {
   level: number;
   name: string;
   description: string;
   targetCatches: number; // to advance or complete level in classic mode
-  spawnInterval: number; // ms
+  spawnInterval: number; // ms for regular collectible jellyfish
   maxJellyfish: number;
   speedMultiplier: number;
+  enemySpawnConfig: EnemySpawnConfig;
   probabilities: {
     pink: number;
     blue: number;

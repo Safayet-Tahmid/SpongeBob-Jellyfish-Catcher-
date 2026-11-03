@@ -108,16 +108,16 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ onClose }) => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 bg-red-50/90 p-2.5 rounded-2xl border-2 border-red-400 shadow-sm">
-                <div className="w-8 h-8 rounded-xl bg-red-100 border-2 border-red-500 flex items-center justify-center shrink-0 text-sm">
-                  ⚡
+              <div className="flex items-center gap-3 bg-purple-950/80 p-2.5 rounded-2xl border-2 border-red-500 shadow-sm text-white">
+                <div className="w-8 h-8 rounded-xl bg-purple-900 border-2 border-red-500 flex items-center justify-center shrink-0 text-sm shadow-[0_0_8px_#ef4444]">
+                  😈
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-cartoon font-black text-red-700">Electric Jellyfish</span>
-                    <span className="font-cartoon text-red-700 font-black">HAZARD!</span>
+                    <span className="font-cartoon font-black text-rose-300">Dark Electric Jellyfish</span>
+                    <span className="font-cartoon text-red-400 font-black animate-pulse">ENEMY HAZARD!</span>
                   </div>
-                  <span className="text-[11px] text-red-950 font-medium">Avoid contact! Shocks SpongeBob and costs 1 Krabby Patty life.</span>
+                  <span className="text-[11px] text-purple-200 font-medium">Dark purple & crimson enemy with glowing eyes! Stings SpongeBob and loses 1 life.</span>
                 </div>
               </div>
 

@@ -11,6 +11,9 @@ export class Jellyfish {
   public radius: number;
   public isCaught = false;
   public caughtProgress = 0; // 0 to 1 as it gets pulled into net
+  public isDespawned = false; // set true when enemy swims off screen
+  public isLeaving = false; // set true when enemy begins exit swim
+  public lifespan = 999999; // roaming duration before departing (finite for electric enemies)
 
   // Swimming animation
   public animTimer: number;
@@ -52,12 +55,14 @@ export class Jellyfish {
         this.baseSpeed = (95 + Math.random() * 40) * speedMultiplier;
         this.pulseSpeed = 5.0;
         this.radius = 21;
+        this.lifespan = 24 + Math.random() * 8; // roams for 24-32 seconds
         break;
       case 'RAINBOW':
         this.scoreValue = 100;
         this.baseSpeed = (120 + Math.random() * 45) * speedMultiplier;
         this.pulseSpeed = 5.2;
         this.radius = 23;
+        this.lifespan = 999999;
         break;
       case 'PINK':
       default:
@@ -65,6 +70,7 @@ export class Jellyfish {
         this.baseSpeed = (65 + Math.random() * 25) * speedMultiplier;
         this.pulseSpeed = 3.2;
         this.radius = 20;
+        this.lifespan = 999999;
         break;
     }
 
@@ -109,30 +115,52 @@ export class Jellyfish {
       }
     }
 
+    // Lifespan & exit handling for electric enemy jellyfish
+    if (this.type === 'ELECTRIC') {
+      this.lifespan -= dt;
+      if (this.lifespan <= 0) {
+        this.isLeaving = true;
+        // Swim upwards or towards nearest side to gracefully leave
+        this.vy = -Math.abs(this.vy) - 35;
+      }
+    }
+
     // Natural rhythmic propulsion pulse
     const pulseFactor = 0.6 + Math.pow(Math.max(0, Math.sin(this.animTimer)), 2) * 0.8;
     this.x += this.vx * pulseFactor * dt;
     this.y += this.vy * pulseFactor * dt;
 
-    // Gentle bounds bounce
-    const pad = this.radius + 10;
+    const pad = this.radius + 15;
     const topMargin = 70;
     const bottomMargin = 85;
 
-    if (this.x < pad) {
-      this.x = pad;
-      this.vx = Math.abs(this.vx);
-    } else if (this.x > bounds.width - pad) {
-      this.x = bounds.width - pad;
-      this.vx = -Math.abs(this.vx);
-    }
+    if (this.isLeaving) {
+      // Allow enemy to swim completely off screen and mark as despawned
+      if (
+        this.y < -pad - 40 ||
+        this.y > bounds.height + pad + 40 ||
+        this.x < -pad - 40 ||
+        this.x > bounds.width + pad + 40
+      ) {
+        this.isDespawned = true;
+      }
+    } else {
+      // Gentle bounds bounce while active
+      if (this.x < pad) {
+        this.x = pad;
+        this.vx = Math.abs(this.vx);
+      } else if (this.x > bounds.width - pad) {
+        this.x = bounds.width - pad;
+        this.vx = -Math.abs(this.vx);
+      }
 
-    if (this.y < pad + topMargin) {
-      this.y = pad + topMargin;
-      this.vy = Math.abs(this.vy);
-    } else if (this.y > bounds.height - pad - bottomMargin) {
-      this.y = bounds.height - pad - bottomMargin;
-      this.vy = -Math.abs(this.vy);
+      if (this.y < pad + topMargin) {
+        this.y = pad + topMargin;
+        this.vy = Math.abs(this.vy);
+      } else if (this.y > bounds.height - pad - bottomMargin) {
+        this.y = bounds.height - pad - bottomMargin;
+        this.vy = -Math.abs(this.vy);
+      }
     }
   }
 
@@ -160,7 +188,7 @@ export class Jellyfish {
       ctx.restore();
     }
 
-    // Outer glow for Gold, Rainbow, or Electric
+    // Outer glow for Gold, Rainbow, or Electric Hazard
     if (this.type === 'GOLD') {
       ctx.save();
       const glow = ctx.createRadialGradient(0, 0, 5, 0, 0, this.radius * 1.8);
@@ -182,14 +210,25 @@ export class Jellyfish {
       ctx.fill();
       ctx.restore();
     } else if (this.type === 'ELECTRIC') {
-      // Crackling electric aura
+      // ⚡ OMINOUS DARK ENERGY PULSE & ELECTRIC CRACKLES
       ctx.save();
-      ctx.strokeStyle = 'rgba(253, 224, 71, 0.85)';
-      ctx.lineWidth = 2;
+      // Menacing radial dark purple & crimson shadow aura
+      const shadowGlow = ctx.createRadialGradient(0, 0, 4, 0, 0, this.radius * 2.3);
+      shadowGlow.addColorStop(0, 'rgba(88, 28, 135, 0.65)'); // deep violet
+      shadowGlow.addColorStop(0.5, 'rgba(159, 18, 57, 0.45)'); // dark crimson
+      shadowGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = shadowGlow;
       ctx.beginPath();
-      for (let i = 0; i < 6; i++) {
-        const ang = (i / 6) * Math.PI * 2 + this.electricSparkTimer * 8;
-        const rad = this.radius * 1.35 + (Math.random() - 0.5) * 6;
+      ctx.arc(0, 0, this.radius * 2.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Crackling jagged lightning arcs radiating outward
+      ctx.strokeStyle = '#f43f5e'; // glowing electric crimson
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      for (let i = 0; i < 7; i++) {
+        const ang = (i / 7) * Math.PI * 2 + this.electricSparkTimer * 9;
+        const rad = this.radius * 1.45 + (Math.sin(this.electricSparkTimer * 12 + i) * 6);
         const sx = Math.cos(ang) * rad;
         const sy = Math.sin(ang) * rad;
         if (i === 0) ctx.moveTo(sx, sy);
@@ -197,47 +236,76 @@ export class Jellyfish {
       }
       ctx.closePath();
       ctx.stroke();
+
+      // Sharp secondary toxic purple sparks
+      ctx.strokeStyle = '#c084fc';
+      ctx.lineWidth = 1.5;
+      for (let j = 0; j < 3; j++) {
+        const sparkAng = this.electricSparkTimer * 7 + j * 2.1;
+        const sDist = this.radius * 1.25;
+        const x1 = Math.cos(sparkAng) * sDist;
+        const y1 = Math.sin(sparkAng) * sDist;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x1 + (Math.random() - 0.5) * 14, y1 + (Math.random() - 0.5) * 14);
+        ctx.stroke();
+      }
       ctx.restore();
     }
 
     // --- Undulating Tentacles ---
     ctx.save();
-    const tentacleCount = 4;
-    const tentacleSpread = 16 * contraction;
-    const tentacleLength = 22 * verticalSquash;
+    const tentacleCount = this.type === 'ELECTRIC' ? 5 : 4;
+    const tentacleSpread = (this.type === 'ELECTRIC' ? 20 : 16) * contraction;
+    const tentacleLength = (this.type === 'ELECTRIC' ? 26 : 22) * verticalSquash;
 
     for (let i = 0; i < tentacleCount; i++) {
       const tx = -tentacleSpread / 2 + (i / (tentacleCount - 1)) * tentacleSpread;
       const wave = Math.sin(this.animTimer + i * 1.2) * 5;
 
-      ctx.beginPath();
-      ctx.moveTo(tx, 4);
-      ctx.bezierCurveTo(
-        tx + wave,
-        10,
-        tx - wave,
-        tentacleLength * 0.7,
-        tx + wave * 0.5,
-        tentacleLength
-      );
+      if (this.type === 'ELECTRIC') {
+        // Jagged, barbed, threatening tentacles with sharp angles
+        ctx.beginPath();
+        ctx.moveTo(tx, 4);
+        ctx.lineTo(tx + wave * 0.8, 10);
+        ctx.lineTo(tx - wave * 1.2, tentacleLength * 0.6);
+        ctx.lineTo(tx + wave * 0.6, tentacleLength);
+        ctx.strokeStyle = '#831843'; // deep sinister crimson
+        ctx.lineWidth = 3.2;
+        ctx.stroke();
 
-      if (this.type === 'PINK') {
-        ctx.strokeStyle = 'rgba(244, 114, 182, 0.85)';
-        ctx.lineWidth = 2.4;
-      } else if (this.type === 'BLUE') {
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.9)';
-        ctx.lineWidth = 2.4;
-      } else if (this.type === 'GOLD') {
-        ctx.strokeStyle = 'rgba(250, 204, 21, 0.95)';
-        ctx.lineWidth = 2.6;
-      } else if (this.type === 'ELECTRIC') {
-        ctx.strokeStyle = '#fef08a';
-        ctx.lineWidth = 3;
-      } else if (this.type === 'RAINBOW') {
-        ctx.strokeStyle = `hsl(${(this.hue + i * 40) % 360}, 90%, 65%)`;
-        ctx.lineWidth = 2.6;
+        // Glowing electric venom barb tip
+        ctx.fillStyle = '#fb7185';
+        ctx.beginPath();
+        ctx.arc(tx + wave * 0.6, tentacleLength, 2, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(tx, 4);
+        ctx.bezierCurveTo(
+          tx + wave,
+          10,
+          tx - wave,
+          tentacleLength * 0.7,
+          tx + wave * 0.5,
+          tentacleLength
+        );
+
+        if (this.type === 'PINK') {
+          ctx.strokeStyle = 'rgba(244, 114, 182, 0.85)';
+          ctx.lineWidth = 2.4;
+        } else if (this.type === 'BLUE') {
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.9)';
+          ctx.lineWidth = 2.4;
+        } else if (this.type === 'GOLD') {
+          ctx.strokeStyle = 'rgba(250, 204, 21, 0.95)';
+          ctx.lineWidth = 2.6;
+        } else if (this.type === 'RAINBOW') {
+          ctx.strokeStyle = `hsl(${(this.hue + i * 40) % 360}, 90%, 65%)`;
+          ctx.lineWidth = 2.6;
+        }
+        ctx.stroke();
       }
-      ctx.stroke();
     }
     ctx.restore();
 
@@ -253,6 +321,7 @@ export class Jellyfish {
       grad.addColorStop(1, '#db2777');
       ctx.fillStyle = grad;
       ctx.strokeStyle = '#be185d';
+      ctx.lineWidth = 1.8;
     } else if (this.type === 'BLUE') {
       const grad = ctx.createRadialGradient(0, -6, 2, 0, 0, this.radius);
       grad.addColorStop(0, '#bae6fd');
@@ -260,6 +329,7 @@ export class Jellyfish {
       grad.addColorStop(1, '#0284c7');
       ctx.fillStyle = grad;
       ctx.strokeStyle = '#0369a1';
+      ctx.lineWidth = 1.8;
     } else if (this.type === 'GOLD') {
       const grad = ctx.createRadialGradient(0, -6, 2, 0, 0, this.radius);
       grad.addColorStop(0, '#fef08a');
@@ -267,13 +337,17 @@ export class Jellyfish {
       grad.addColorStop(1, '#ca8a04');
       ctx.fillStyle = grad;
       ctx.strokeStyle = '#a16207';
+      ctx.lineWidth = 1.8;
     } else if (this.type === 'ELECTRIC') {
+      // 😈 DARK OMINOUS VILLAIN DOME: Deep violet, dark crimson, charcoal obsidian
       const grad = ctx.createRadialGradient(0, -6, 2, 0, 0, this.radius);
-      grad.addColorStop(0, '#ffffff');
-      grad.addColorStop(0.6, '#fef08a');
-      grad.addColorStop(1, '#eab308');
+      grad.addColorStop(0, '#701a75'); // rich dark fuchsia
+      grad.addColorStop(0.45, '#3b0764'); // deep obsidian purple
+      grad.addColorStop(0.9, '#18181b'); // charcoal midnight black
+      grad.addColorStop(1, '#09090b');
       ctx.fillStyle = grad;
-      ctx.strokeStyle = '#ca8a04';
+      ctx.strokeStyle = '#f43f5e'; // glowing red/crimson danger outline
+      ctx.lineWidth = 2.6;
     } else if (this.type === 'RAINBOW') {
       const grad = ctx.createRadialGradient(0, -6, 2, 0, 0, this.radius);
       grad.addColorStop(0, '#ffffff');
@@ -281,9 +355,8 @@ export class Jellyfish {
       grad.addColorStop(1, `hsl(${(this.hue + 60) % 360}, 85%, 50%)`);
       ctx.fillStyle = grad;
       ctx.strokeStyle = `hsl(${(this.hue + 80) % 360}, 90%, 40%)`;
+      ctx.lineWidth = 1.8;
     }
-
-    ctx.lineWidth = 1.8;
 
     // Draw mushroom bell
     ctx.beginPath();
@@ -297,30 +370,105 @@ export class Jellyfish {
       this.radius,
       4
     );
-    // Ruffled bottom rim
-    const lobes = 4;
-    for (let l = lobes; l >= 0; l--) {
-      const rx = -this.radius + (l / lobes) * (this.radius * 2);
-      ctx.quadraticCurveTo(rx, 7, rx - this.radius / lobes, 4);
+
+    if (this.type === 'ELECTRIC') {
+      // Spiked, jagged bottom rim for hostile enemy
+      const spikes = 6;
+      for (let s = spikes; s >= 0; s--) {
+        const sx = -this.radius + (s / spikes) * (this.radius * 2);
+        const midX = sx - this.radius / spikes;
+        ctx.lineTo(sx, 7);
+        ctx.lineTo(midX, 4);
+      }
+    } else {
+      // Friendly ruffled bottom rim for collectible jellyfish
+      const lobes = 4;
+      for (let l = lobes; l >= 0; l--) {
+        const rx = -this.radius + (l / lobes) * (this.radius * 2);
+        ctx.quadraticCurveTo(rx, 7, rx - this.radius / lobes, 4);
+      }
     }
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
-    // Three cute spots on the bell (iconic SpongeBob jellyfish spots)
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-    ctx.beginPath();
-    ctx.arc(-this.radius * 0.35, -this.radius * 0.3, 3.2, 0, Math.PI * 2);
-    ctx.arc(this.radius * 0.3, -this.radius * 0.35, 3.8, 0, Math.PI * 2);
-    ctx.arc(0, -this.radius * 0.65, 3, 0, Math.PI * 2);
-    ctx.fill();
+    if (this.type === 'ELECTRIC') {
+      // 👁️ GLOWING MENACING ENEMY EYES (Instantly signals hostile enemy)
+      ctx.save();
+      // Glowing red ocular sockets
+      const eyeY = -this.radius * 0.35;
+      const eyeSpread = this.radius * 0.35;
 
-    // Specular highlight rim on top
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
-    ctx.lineWidth = 1.8;
-    ctx.beginPath();
-    ctx.arc(0, -4, this.radius * 0.75, -Math.PI * 0.75, -Math.PI * 0.25);
-    ctx.stroke();
+      // Left glowing evil eye (tilted inward menacing scowl)
+      ctx.save();
+      ctx.translate(-eyeSpread, eyeY);
+      ctx.rotate(0.3);
+      ctx.fillStyle = '#ef4444'; // glowing crimson red
+      ctx.shadowColor = '#dc2626';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 4.2, 2.8, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Slit black pupil
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 1.4, 2.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Right glowing evil eye (tilted inward menacing scowl)
+      ctx.save();
+      ctx.translate(eyeSpread, eyeY);
+      ctx.rotate(-0.3);
+      ctx.fillStyle = '#ef4444';
+      ctx.shadowColor = '#dc2626';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 4.2, 2.8, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Slit black pupil
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 1.4, 2.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Menacing brow ridge above eyes
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(-eyeSpread - 3.5, eyeY - 4);
+      ctx.lineTo(-eyeSpread + 4, eyeY - 1.5);
+      ctx.moveTo(eyeSpread + 3.5, eyeY - 4);
+      ctx.lineTo(eyeSpread - 4, eyeY - 1.5);
+      ctx.stroke();
+
+      // Dark forehead lightning scar / hazard rune
+      ctx.strokeStyle = '#c084fc';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(-3, -this.radius * 0.85);
+      ctx.lineTo(2, -this.radius * 0.65);
+      ctx.lineTo(-2, -this.radius * 0.5);
+      ctx.lineTo(3, -this.radius * 0.35);
+      ctx.stroke();
+      ctx.restore();
+    } else {
+      // Three cute spots on the bell (iconic friendly SpongeBob jellyfish spots)
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.beginPath();
+      ctx.arc(-this.radius * 0.35, -this.radius * 0.3, 3.2, 0, Math.PI * 2);
+      ctx.arc(this.radius * 0.3, -this.radius * 0.35, 3.8, 0, Math.PI * 2);
+      ctx.arc(0, -this.radius * 0.65, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Specular highlight rim on top
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.arc(0, -4, this.radius * 0.75, -Math.PI * 0.75, -Math.PI * 0.25);
+      ctx.stroke();
+    }
 
     ctx.restore();
     ctx.restore();

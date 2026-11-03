@@ -79,6 +79,10 @@ export class GameEngine {
   private powerUpSpawnTimer = 10;
   private isRunning = false;
 
+  // Controlled Gradual Enemy Spawning
+  private enemySpawnDelayTimer = 0; // Delay countdown before first enemy appears in level
+  private enemySpawnIntervalTimer = 0; // Cooldown countdown between successive enemy spawns
+
   // Camera Shake
   private shakeTimer = 0;
   private shakeIntensity = 0;
@@ -152,15 +156,23 @@ export class GameEngine {
     this.powerUpsList = [];
     this.activePowerUps = [];
     this.particles.clear();
-    this.powerUpSpawnTimer = 12;
+    this.powerUpSpawnTimer = 14;
+
+    const config = getLevelConfig(this.currentLevel);
+
+    // Initial enemy timers from level config (peaceful start breathing room)
+    this.enemySpawnDelayTimer = config.enemySpawnConfig.initialEnemyDelay;
+    this.enemySpawnIntervalTimer = config.enemySpawnConfig.enemySpawnInterval;
+    this.spawnTimer = 0;
 
     const w = this.getWidth();
     const h = this.getHeight();
     this.player = new Player(w / 2, h / 2);
 
-    // Initial jellyfish population
-    for (let i = 0; i < 7; i++) {
-      this.spawnJellyfish();
+    // Initial jellyfish population: ZERO ENEMIES on screen! ONLY friendly collectible jellyfish!
+    const initialPopulation = 7;
+    for (let i = 0; i < initialPopulation; i++) {
+      this.spawnCollectibleJellyfish();
     }
 
     this.state = 'PLAYING';
@@ -218,11 +230,19 @@ export class GameEngine {
     let caughtAny = false;
 
     for (const jelly of this.jellyfishList) {
-      if (jelly.isCaught || jelly.type === 'ELECTRIC') continue;
+      if (jelly.isCaught) continue;
 
       const dist = Math.hypot(jelly.x - hitbox.x, jelly.y - hitbox.y);
       if (dist <= hitbox.radius + jelly.radius) {
-        // Caught!
+        if (jelly.type === 'ELECTRIC') {
+          // Touching an electric enemy conducts electric shock!
+          if (this.player.invulnerabilityTimer <= 0) {
+            this.handleElectricShock(jelly);
+          }
+          continue;
+        }
+
+        // Caught collectible jellyfish!
         jelly.isCaught = true;
         caughtAny = true;
         this.processCatch(jelly);
@@ -284,6 +304,13 @@ export class GameEngine {
   private advanceLevel() {
     this.currentLevel++;
     this.levelCatches = 0;
+    const config = getLevelConfig(this.currentLevel);
+
+    // Reset enemy spawn timers so player has breathing room at start of each new level
+    this.enemySpawnDelayTimer = config.enemySpawnConfig.initialEnemyDelay;
+    this.enemySpawnIntervalTimer = config.enemySpawnConfig.enemySpawnInterval;
+    this.spawnTimer = 0;
+
     this.player.triggerCheer(1.6);
     soundManager.playLevelUp();
     this.particles.addFloatingText(
@@ -371,14 +398,26 @@ export class GameEngine {
     for (const jelly of this.jellyfishList) {
       jelly.update(dt, { width: w, height: h }, playerPos, this.player.magnetActive);
 
-      // Electric collision check with player
-      if (jelly.type === 'ELECTRIC' && this.player.invulnerabilityTimer <= 0) {
-        const pDist = Math.hypot(jelly.x - this.player.x, jelly.y - (this.player.y - 10));
-        if (pDist < jelly.radius + 24) {
+      // Electric enemy collision check with SpongeBob (precise box-to-circle detection)
+      if (
+        jelly.type === 'ELECTRIC' &&
+        this.player.invulnerabilityTimer <= 0 &&
+        this.player.shockTimer <= 0
+      ) {
+        const halfW = 24;
+        const halfH = 30;
+        const closestX = Math.max(this.player.x - halfW, Math.min(jelly.x, this.player.x + halfW));
+        const closestY = Math.max(this.player.y - halfH, Math.min(jelly.y, this.player.y + halfH));
+        const pDist = Math.hypot(jelly.x - closestX, jelly.y - closestY);
+
+        if (pDist <= jelly.radius + 6) {
           this.handleElectricShock(jelly);
         }
       }
     }
+
+    // Clean up despawned or caught jellyfish
+    this.jellyfishList = this.jellyfishList.filter((j) => !j.isDespawned && !j.isCaught);
 
     // Update Collectible Power-Ups on screen
     for (let i = this.powerUpsList.length - 1; i >= 0; i--) {
@@ -398,14 +437,34 @@ export class GameEngine {
       }
     }
 
-    // Spawn Jellyfish check
+    // 1. Regular Collectible Jellyfish Spawning (Pink, Blue, Gold, Rainbow)
     this.spawnTimer += dt * 1000;
     if (
       this.spawnTimer >= levelConfig.spawnInterval &&
       this.jellyfishList.length < levelConfig.maxJellyfish
     ) {
       this.spawnTimer = 0;
-      this.spawnJellyfish();
+      this.spawnCollectibleJellyfish();
+    }
+
+    // 2. Controlled Gradual Enemy Spawning (Classic and Time Attack modes only)
+    if (this.mode !== 'RELAX') {
+      if (this.enemySpawnDelayTimer > 0) {
+        this.enemySpawnDelayTimer -= dt;
+      } else {
+        if (this.enemySpawnIntervalTimer > 0) {
+          this.enemySpawnIntervalTimer -= dt;
+        }
+
+        const activeEnemies = this.countActiveEnemies();
+        const maxAllowed = levelConfig.enemySpawnConfig.maxActiveEnemies;
+
+        // Strictly spawn ONLY 1 enemy when timer expires and below level cap
+        if (this.enemySpawnIntervalTimer <= 0 && activeEnemies < maxAllowed) {
+          this.spawnSingleEnemyJellyfish();
+          this.enemySpawnIntervalTimer = levelConfig.enemySpawnConfig.enemySpawnInterval;
+        }
+      }
     }
 
     // Spawn Collectible Power-Up check
@@ -425,27 +484,42 @@ export class GameEngine {
     if (this.player.shieldActive) {
       // Bubble shield deflects shock!
       soundManager.playShieldDeflect();
-      this.triggerScreenShake(0.15, 3);
+      this.triggerScreenShake(0.18, 4);
       this.particles.spawnElectricShock(jelly.x, jelly.y);
-      this.particles.addFloatingText(this.player.x, this.player.y - 30, 'DEFLECTED!', '#38bdf8', 16);
+      this.particles.addFloatingText(this.player.x, this.player.y - 30, 'DEFLECTED!', '#38bdf8', 18);
+      // Knock deflected enemy away
+      const dx = jelly.x - this.player.x;
+      const dy = jelly.y - this.player.y;
+      const dist = Math.hypot(dx, dy) || 1;
+      jelly.vx = (dx / dist) * 240;
+      jelly.vy = (dy / dist) * 240;
       return;
     }
 
     soundManager.playElectricShock();
     soundManager.playLifeLost();
     this.player.triggerShock();
-    this.triggerScreenShake(0.35, 9);
+    this.triggerScreenShake(0.35, 10);
     this.particles.spawnElectricShock(this.player.x, this.player.y);
+
+    // Push enemy away with impulse so SpongeBob doesn't stay stuck inside it
+    const dx = jelly.x - this.player.x;
+    const dy = jelly.y - this.player.y;
+    const dist = Math.hypot(dx, dy) || 1;
+    jelly.vx = (dx / dist) * 220;
+    jelly.vy = (dy / dist) * 220;
 
     if (this.mode === 'CLASSIC') {
       this.lives = Math.max(0, this.lives - 1);
-      this.particles.addFloatingText(this.player.x, this.player.y - 35, '-1 LIFE!', '#ef4444', 20);
+      this.callbacks.onLivesUpdate(this.lives);
+      this.particles.addFloatingText(this.player.x, this.player.y - 35, '-1 LIFE!', '#ef4444', 22);
       if (this.lives <= 0) {
         this.endGame();
       }
     } else if (this.mode === 'TIME_ATTACK') {
       this.score = Math.max(0, this.score - 50);
-      this.particles.addFloatingText(this.player.x, this.player.y - 35, '-50 PTS!', '#ef4444', 20);
+      this.callbacks.onScoreUpdate(this.score);
+      this.particles.addFloatingText(this.player.x, this.player.y - 35, '-50 PTS!', '#ef4444', 22);
     }
   }
 
@@ -485,40 +559,60 @@ export class GameEngine {
     if (type === 'BUBBLE_SHIELD') this.player.shieldActive = false;
   }
 
-  private spawnJellyfish() {
+  private countActiveEnemies(): number {
+    let count = 0;
+    for (const j of this.jellyfishList) {
+      if (j.type === 'ELECTRIC' && !j.isCaught && !j.isDespawned) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  private spawnCollectibleJellyfish() {
     const w = this.getWidth();
     const h = this.getHeight();
     const config = getLevelConfig(this.currentLevel);
 
-    // Roll type based on level probabilities
+    // Roll type based strictly on collectible probabilities
     const roll = Math.random();
     let type: JellyfishType = 'PINK';
     const p = config.probabilities;
 
-    if (roll < p.pink) type = 'PINK';
-    else if (roll < p.pink + p.blue) type = 'BLUE';
-    else if (roll < p.pink + p.blue + p.gold) type = 'GOLD';
-    else if (roll < p.pink + p.blue + p.gold + p.electric) type = 'ELECTRIC';
-    else type = 'RAINBOW';
-
-    // Relax mode has no dangerous electric jellyfish
-    if (this.mode === 'RELAX' && type === 'ELECTRIC') {
+    if (roll < p.pink) {
       type = 'PINK';
+    } else if (roll < p.pink + p.blue) {
+      type = 'BLUE';
+    } else if (roll < p.pink + p.blue + p.gold) {
+      type = 'GOLD';
+    } else {
+      type = 'RAINBOW';
     }
 
-    // Spawn from left, right, or top edge
-    const edge = Math.floor(Math.random() * 3);
+    // Determine safe spawn position
     let x = 0;
     let y = 0;
-    if (edge === 0) {
-      x = -20;
-      y = 90 + Math.random() * (h - 200);
-    } else if (edge === 1) {
-      x = w + 20;
-      y = 90 + Math.random() * (h - 200);
+
+    if (this.jellyfishList.length < 5) {
+      // Initial field distribution away from player
+      x = 60 + Math.random() * (w - 120);
+      y = 90 + Math.random() * (h - 220);
+      if (Math.hypot(x - this.player.x, y - this.player.y) < 140) {
+        x = (x + w / 2) % (w - 120) + 60;
+      }
     } else {
-      x = 50 + Math.random() * (w - 100);
-      y = 70;
+      // Off-screen edge spawning
+      const edge = Math.floor(Math.random() * 3);
+      if (edge === 0) {
+        x = -25;
+        y = 90 + Math.random() * (h - 200);
+      } else if (edge === 1) {
+        x = w + 25;
+        y = 90 + Math.random() * (h - 200);
+      } else {
+        x = 50 + Math.random() * (w - 100);
+        y = 70;
+      }
     }
 
     const jelly = new Jellyfish(
@@ -529,6 +623,58 @@ export class GameEngine {
       config.speedMultiplier
     );
     this.jellyfishList.push(jelly);
+  }
+
+  private spawnSingleEnemyJellyfish() {
+    if (this.mode === 'RELAX') return;
+
+    const w = this.getWidth();
+    const h = this.getHeight();
+    const config = getLevelConfig(this.currentLevel);
+
+    // Pick an edge far from SpongeBob
+    let chosenEdge = 0;
+    if (this.player.x > w / 2) {
+      chosenEdge = 0; // spawn from left edge
+    } else {
+      chosenEdge = 1; // spawn from right edge
+    }
+    if (Math.random() < 0.25) chosenEdge = 2; // occasionally top edge
+
+    let x = 0;
+    let y = 0;
+    if (chosenEdge === 0) {
+      x = -30;
+      y = 90 + Math.random() * (h - 200);
+    } else if (chosenEdge === 1) {
+      x = w + 30;
+      y = 90 + Math.random() * (h - 200);
+    } else {
+      x = 60 + Math.random() * (w - 120);
+      y = 65;
+    }
+
+    // Ensure it never spawns right on SpongeBob (at least 180px away)
+    if (Math.hypot(x - this.player.x, y - this.player.y) < 180) {
+      x = (x + w / 2) % (w - 80) + 40;
+    }
+
+    const enemy = new Jellyfish(
+      `enemy_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      x,
+      y,
+      'ELECTRIC',
+      config.speedMultiplier
+    );
+    this.jellyfishList.push(enemy);
+  }
+
+  private spawnJellyfish(forcedType?: JellyfishType) {
+    if (forcedType === 'ELECTRIC') {
+      this.spawnSingleEnemyJellyfish();
+    } else {
+      this.spawnCollectibleJellyfish();
+    }
   }
 
   private spawnCollectiblePowerUp() {
